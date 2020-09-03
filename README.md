@@ -19,7 +19,7 @@ Finally, Click on move to move all files.
 
 # License
 Soup Mover is a program to batch move files to various folders.
-    Copyright (C) <2020>  <MrSoupman>
+    Copyright (C) 2020 MrSoupman
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
