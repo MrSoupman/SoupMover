@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30413.136
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoupMover", "SoupMover.csproj", "{E08120D4-2DDF-469C-863D-F83041E3A302}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E08120D4-2DDF-469C-863D-F83041E3A302}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E08120D4-2DDF-469C-863D-F83041E3A302}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E08120D4-2DDF-469C-863D-F83041E3A302}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E08120D4-2DDF-469C-863D-F83041E3A302}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BC5C4D4D-F40B-4091-9572-A221CD609F66}
+	EndGlobalSection
+EndGlobal
