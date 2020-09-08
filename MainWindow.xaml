@@ -43,20 +43,20 @@
                 </Grid.ColumnDefinitions>
                 
                 <StackPanel VerticalAlignment="Center">
-                    <Button Margin="5 5 5 5" Name="btnAddFiles">Add Files</Button>
-                    <Button Margin="5 5 5 5" Name="btnRemoveFiles">Remove Files</Button>
+                    <Button Margin="5 5 5 5" Name="btnAddFiles" Click="AddFiles">Add Files</Button>
+                    <Button Margin="5 5 5 5" Name="btnRemoveFiles" Click="RemoveFiles">Remove Files</Button>
                 </StackPanel>
                 
                 <GroupBox Header="Source Files" Grid.Column="1">
-                        <ListView Name="listSourceFiles"/>
+                        <ListView Name="listViewSourceFiles" />
                 </GroupBox>
                 
                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                    <Button Name="btnMoveTo" Margin="5 5 5 5" Content="-&gt;"/>
-                    <Button Name="btnMoveFrom" Margin="5 5 5 5" Content="&lt;-"></Button>
+                    <Button Name="btnMoveTo" Margin="5 5 5 5" Content="-&gt;" Click="MoveToDestination"/>
+                    <Button Name="btnMoveFrom" Margin="5 5 5 5" Content="&lt;-" Click="MoveToSource"></Button>
                 </StackPanel>
                     <GroupBox Header="Destination" Grid.Column="4">
-                        <ListView Name="listDestination"/>
+                        <ListView Name="listViewDestination"/>
                     </GroupBox>
                 </Grid>
             
@@ -77,13 +77,13 @@
             <!--This section for directory and progress-->
             <!--Pane 3 is for the list of directories that files can be moved to-->
                 <GroupBox Header="Directories" Grid.Column="1">
-                    <ListView Name="listDirectories"/>
+                    <ListView Name="listViewDirectories"/>
                 </GroupBox>
                 <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch"/>
             <!--Pane 4 is for progress tracker, and move/undo/stop-->
                 <StackPanel Grid.Row="2">
-                    <Button Name="btnAddDirectory" Margin="5 5 5 5">Add Directory</Button>
-                    <Button Name="btnRemoveDirectory" Margin="5 0 5 5">Remove Directory</Button>
+                    <Button Name="btnAddDirectory" Margin="5 5 5 5" Click="AddDirectories">Add Directory</Button>
+                    <Button Name="btnRemoveDirectory" Margin="5 0 5 5" Click="RemoveDirectories">Remove Directory</Button>
                     <Separator Margin="0 0 0 5"/>
                     <ProgressBar Name="pb" VerticalAlignment="Top" Height="15" Minimum="0" Maximum="100"/>
                     <TextBlock Name="txtProg" FontSize="25" TextAlignment="Center">0/0</TextBlock>
