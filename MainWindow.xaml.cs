@@ -149,7 +149,6 @@ namespace SoupMover
             {
                 foreach (string file in listViewSourceFiles.SelectedItems)
                 {
-                    //MessageBox.Show(file);
                     listDestination[listViewDirectories.SelectedIndex].Add(file);
                     listSourceFiles.Remove(file);
 
@@ -160,10 +159,26 @@ namespace SoupMover
         }
 
         private void MoveToSource(object sender, RoutedEventArgs e)
-        { 
-        
+        {
+            if (listViewDestination.SelectedItems != null && listViewDirectories.SelectedItem != null)
+            {
+                foreach (string file in listViewDestination.SelectedItems)
+                {
+                    listSourceFiles.Add(file);
+                    listDestination[listViewDirectories.SelectedIndex].Remove(file);
+                }
+                RefreshListViews();
+            }
         }
 
+        private void listViewDirectories_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            //MessageBox.Show(e.AddedItems[0].ToString());
+            int index = listDirectories.IndexOf(e.AddedItems[0].ToString());
+            listViewDestination.ItemsSource = listDestination[index];
+            RefreshListViews();
+        }
 
         public MainWindow()
         {
@@ -171,5 +186,7 @@ namespace SoupMover
             listViewSourceFiles.ItemsSource = listSourceFiles; //binds List source files to the list view
             listViewDirectories.ItemsSource = listDirectories;
         }
+
+        
     }
 }

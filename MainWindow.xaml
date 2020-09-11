@@ -77,7 +77,7 @@
             <!--This section for directory and progress-->
             <!--Pane 3 is for the list of directories that files can be moved to-->
                 <GroupBox Header="Directories" Grid.Column="1">
-                    <ListView Name="listViewDirectories"/>
+                    <ListView Name="listViewDirectories" SelectionMode="Single" SelectionChanged="listViewDirectories_SelectionChanged"/>
                 </GroupBox>
                 <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch"/>
             <!--Pane 4 is for progress tracker, and move/undo/stop-->
