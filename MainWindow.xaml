@@ -36,9 +36,9 @@
             <!--Pane 1 is for adding images that need to be moved, and deciding where it needs to be moved-->
             <Grid Background="LightGray">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.5*"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="0.25*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 
@@ -50,10 +50,11 @@
                 <GroupBox Header="Source Files" Grid.Column="1">
                         <ListView Name="listViewSourceFiles" />
                 </GroupBox>
-                
-                <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                    <Button Name="btnMoveTo" Margin="5 5 5 5" Content="-&gt;" Click="MoveToDestination"/>
-                    <Button Name="btnMoveFrom" Margin="5 5 5 5" Content="&lt;-" Click="MoveToSource"></Button>
+
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <Button Name="btnMoveTo" Margin="5 5 5 20" Content="-&gt;" Click="MoveToDestination"/>
+                    <Button Name="btnMoveFrom" Margin="5 20 5 5
+                            " Content="&lt;-" Click="MoveToSource"></Button>
                 </StackPanel>
                     <GroupBox Header="Destination" Grid.Column="4">
                         <ListView Name="listViewDestination"/>

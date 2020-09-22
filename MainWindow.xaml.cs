@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml;
 
 namespace SoupMover
 {
@@ -41,18 +42,59 @@ namespace SoupMover
         }
 
         private void Load(object sender, RoutedEventArgs e)
-        { 
+        {
             
         }
 
         private void Save(object sender, RoutedEventArgs e)
         {
+            int index = 0;
+            SaveFileDialog save = new SaveFileDialog();
+            save.Filter = "XML file (*.xml)|*.xml";
+            if (save.ShowDialog() == true)
+            {
+                XmlWriter xml = XmlWriter.Create(save.FileName);
+                xml.WriteStartDocument();
+                xml.WriteStartElement("root");
 
+                xml.WriteStartElement("SourceFiles");
+                foreach (string filename in listSourceFiles)
+                {
+                    xml.WriteStartElement("file");
+                    xml.WriteString(filename);
+                    xml.WriteEndElement();
+                }
+                xml.WriteEndElement(); //end of SourceFiles
+
+                xml.WriteStartElement("Directories");
+                foreach (string directory in listDirectories)
+                {
+                    xml.WriteStartElement("Directory");
+                    xml.WriteAttributeString("dir", directory);
+                    foreach (string filename in listDestination[index])
+                    {
+                        xml.WriteStartElement("file");
+                        xml.WriteString(filename);
+                        xml.WriteEndElement();
+                    }
+                    index++;
+                    xml.WriteEndElement();
+
+                }
+                xml.WriteEndElement();
+
+                xml.WriteEndElement(); //end of root
+                xml.WriteEndDocument();
+                xml.Close();
+                MessageBox.Show("Successfully saved list to " + save.FileName, "Success",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
         }
 
         private void Exit(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult result = MessageBox.Show("Are you sure you want to exit?", "Exit",MessageBoxButton.OKCancel,MessageBoxImage.Warning,MessageBoxResult.Cancel);
+            MessageBoxResult result = MessageBox.Show("Are you sure you want to exit?", "Exit",
+                MessageBoxButton.OKCancel,MessageBoxImage.Warning,MessageBoxResult.Cancel);
             if(result == MessageBoxResult.OK)
                 Application.Current.Shutdown();
             
@@ -60,7 +102,8 @@ namespace SoupMover
 
         private void About(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Soup Mover V0.1\nSoup Mover is a program for moving files to various folders. Made by MrSoupman.", "About", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("Soup Mover V0.1\nSoup Mover is a program for moving files to various folders. " +
+                "Made by MrSoupman.", "About", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void Reset(object sender, RoutedEventArgs e)
@@ -103,7 +146,8 @@ namespace SoupMover
                 System.Windows.Forms.DialogResult result = dialog.ShowDialog(); //WPF .netcore appearently doesn't have a built in directory browser????? for like 7 years now??? ok
                 if (result == System.Windows.Forms.DialogResult.OK && !listDirectories.Contains(dialog.SelectedPath))
                 {
-                    //If we get a valid directory to drop things in, we need to create a new directory, as well as a list to hold what files go to that directory
+                    //If we get a valid directory to drop things in, we need to create a new directory, 
+                    //as well as a list to hold what files go to that directory
                     listDirectories.Add(dialog.SelectedPath);
                     listDestination.Add(new List<string>());
                     RefreshListViews();
@@ -174,7 +218,6 @@ namespace SoupMover
         private void listViewDirectories_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
-            //MessageBox.Show(e.AddedItems[0].ToString());
             int index = listDirectories.IndexOf(e.AddedItems[0].ToString());
             listViewDestination.ItemsSource = listDestination[index];
             RefreshListViews();
