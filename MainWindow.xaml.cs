@@ -26,6 +26,16 @@ namespace SoupMover
         List<string> listSourceFiles = new List<string>(); //list to store all source files
         List<string> listDirectories = new List<string>(); //stores the directories where we can move files
         List<List<string>> listDestination = new List<List<string>>(); //stores the files per directories
+        int intCurrentFile = 0,intTotalFiles = 0; //current file tracks which file is being moved, total tracks all files
+
+        private void UpdateProgress()
+        {
+            txtProg.Text = (intCurrentFile + "/" + intTotalFiles);
+            if (intTotalFiles != 0) //edge case
+                pb.Value = (double)(intCurrentFile / intTotalFiles) * 100.0;
+            else
+                pb.Value = 0;
+        }
 
         private void RefreshListViews()
         {
@@ -36,6 +46,7 @@ namespace SoupMover
         }
         void wb_LoadCompleted(object sender, NavigationEventArgs e)
         {
+            //hides scroll bar in webview
             string script = "document.body.style.overflow ='auto'";
             WebBrowser wb = (WebBrowser)sender;
             wb.InvokeScript("execScript", new Object[] { script, "JavaScript" });
@@ -43,7 +54,36 @@ namespace SoupMover
 
         private void Load(object sender, RoutedEventArgs e)
         {
-            
+            int index = 0;
+            OpenFileDialog open = new OpenFileDialog();
+            open.Multiselect = false;
+            open.Filter = "XML file (*.xml)|*.xml";
+            if (open.ShowDialog() == true)
+            {
+                Reset(sender,e);
+                XmlDocument xml = new XmlDocument();
+                xml.Load(open.FileName);
+                foreach (XmlNode node in xml.DocumentElement.ChildNodes[0].ChildNodes) //adds sourcefiles back to source list
+                { 
+                    listSourceFiles.Add(node.InnerText);
+                    intTotalFiles++;
+                }
+
+                foreach (XmlNode node in xml.DocumentElement.ChildNodes[1].ChildNodes)
+                {
+                    listDirectories.Add(node.Attributes["dir"].Value);
+                    listDestination.Add(new List<string>());
+                    foreach (XmlNode file in xml.DocumentElement.ChildNodes[1].ChildNodes[index])
+                    { 
+                        listDestination[index].Add(file.InnerText);
+                        intTotalFiles++;
+                    }
+
+                    index++;
+                }
+                UpdateProgress();
+                RefreshListViews();
+            }
         }
 
         private void Save(object sender, RoutedEventArgs e)
@@ -108,7 +148,15 @@ namespace SoupMover
 
         private void Reset(object sender, RoutedEventArgs e)
         {
-
+            listSourceFiles.Clear();
+            listDestination.Clear();
+            listDirectories.Clear();
+            RefreshListViews();
+            listViewDestination.ItemsSource = null;
+            pb.Value = 0;
+            intCurrentFile = 0;
+            intTotalFiles = 0;
+            UpdateProgress();
         }
 
         private void GithubPage(object sender, RoutedEventArgs e)
@@ -123,7 +171,11 @@ namespace SoupMover
             if (open.ShowDialog() == true)
             {
                 foreach (string filename in open.FileNames)
+                { 
                     listSourceFiles.Add(filename);
+                    intTotalFiles++;
+                }
+                UpdateProgress();
                 RefreshListViews();
             }
             
@@ -217,10 +269,13 @@ namespace SoupMover
 
         private void listViewDirectories_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
-            int index = listDirectories.IndexOf(e.AddedItems[0].ToString());
-            listViewDestination.ItemsSource = listDestination[index];
-            RefreshListViews();
+            if(e.AddedItems.Count > 0)
+            {
+                int index = listDirectories.IndexOf(e.AddedItems[0].ToString());
+                listViewDestination.ItemsSource = listDestination[index];
+                RefreshListViews();
+            }
+            
         }
 
         public MainWindow()
