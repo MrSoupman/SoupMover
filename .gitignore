@@ -363,3 +363,6 @@ FodyWeavers.xsd
 .vs/SoupMover/v16/.suo
 bin/*
 obj/*
+
+Test.txt
+reference.PNG

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using SoupMover.FileWindow;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml;
+using Path = System.IO.Path;
 
 namespace SoupMover
 {
@@ -27,7 +29,13 @@ namespace SoupMover
         List<string> listDirectories = new List<string>(); //stores the directories where we can move files
         List<List<string>> listDestination = new List<List<string>>(); //stores the files per directories
         int intCurrentFile = 0,intTotalFiles = 0; //current file tracks which file is being moved, total tracks all files
+        Boolean moveLock = false;
 
+        private void Debug(object sender, RoutedEventArgs e)
+        {
+            //FileCompare compare = new FileCompare();
+            //compare.ShowDialog();
+        }
         private void UpdateProgress()
         {
             txtProg.Text = (intCurrentFile + "/" + intTotalFiles);
@@ -64,10 +72,7 @@ namespace SoupMover
                 XmlDocument xml = new XmlDocument();
                 xml.Load(open.FileName);
                 foreach (XmlNode node in xml.DocumentElement.ChildNodes[0].ChildNodes) //adds sourcefiles back to source list
-                { 
                     listSourceFiles.Add(node.InnerText);
-                    intTotalFiles++;
-                }
 
                 foreach (XmlNode node in xml.DocumentElement.ChildNodes[1].ChildNodes)
                 {
@@ -171,11 +176,7 @@ namespace SoupMover
             if (open.ShowDialog() == true)
             {
                 foreach (string filename in open.FileNames)
-                { 
                     listSourceFiles.Add(filename);
-                    intTotalFiles++;
-                }
-                UpdateProgress();
                 RefreshListViews();
             }
             
@@ -247,7 +248,8 @@ namespace SoupMover
                 {
                     listDestination[listViewDirectories.SelectedIndex].Add(file);
                     listSourceFiles.Remove(file);
-
+                    intTotalFiles++;
+                    UpdateProgress();
                 }
                 listViewDestination.ItemsSource = listDestination[listViewDirectories.SelectedIndex];
                 RefreshListViews();
@@ -262,6 +264,8 @@ namespace SoupMover
                 {
                     listSourceFiles.Add(file);
                     listDestination[listViewDirectories.SelectedIndex].Remove(file);
+                    intTotalFiles--;
+                    UpdateProgress();
                 }
                 RefreshListViews();
             }
@@ -276,6 +280,27 @@ namespace SoupMover
                 RefreshListViews();
             }
             
+        }
+
+        private void Move(object sender, RoutedEventArgs e)
+        {
+            Boolean OverwriteAll = false;
+            for (int i = 0; i < listDirectories.Count; i++)
+            {
+                foreach (string file in listDestination[i])
+                {
+                    String destination = listDirectories[i] + "\\" + Path.GetFileName(file);
+                    if (!File.Exists(destination))
+                    {
+                        File.Move(file, destination);
+                        listDestination[i].Remove(file);
+                    }
+                    
+                    intCurrentFile++;
+                    UpdateProgress();
+                }
+
+            }
         }
 
         public MainWindow()
