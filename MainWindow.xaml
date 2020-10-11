@@ -18,6 +18,7 @@
                 <MenuItem Header="_About" Click="About"/>
                 <MenuItem Header="_Reset" Click="Reset"/>
                 <MenuItem Header="_Github Page" Click="GithubPage"/>
+                <MenuItem Header="_Debug" Click="Debug"/>
             </MenuItem>
         </Menu>
         <Grid>
@@ -88,7 +89,7 @@
                     <Separator Margin="0 0 0 5"/>
                     <ProgressBar Name="pb" VerticalAlignment="Top" Height="15" Minimum="0" Maximum="100"/>
                     <TextBlock Name="txtProg" FontSize="25" TextAlignment="Center">0/0</TextBlock>
-                    <Button Name="btnMove" Margin="5 0 5 5">Move</Button>
+                    <Button Name="btnMove" Margin="5 0 5 5" Click="Move">Move</Button>
                     <Button Name="btnCancel" Margin="5 0 5 5">Cancel</Button>
                     <Button Name="btnUndo" Margin="5 0 5 5">Undo</Button>
                 </StackPanel>
