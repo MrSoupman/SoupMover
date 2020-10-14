@@ -19,7 +19,7 @@ namespace SoupMover.FileWindow
     /// Interaction logic for FileCompare.xaml
     /// </summary>
 
-    public enum Result{ YES,YESTOALL,NO,NOTOALL,KEEPBOTH }
+    public enum Result{ YES,YESTOALL,NO,NOTOALL,KEEPBOTH,CANCEL }
     
     public partial class FileCompare : Window
     {
@@ -95,6 +95,11 @@ namespace SoupMover.FileWindow
         private void Btn_Both(object sender, RoutedEventArgs e)
         {
             RESULT = Result.KEEPBOTH;
+            this.Close();
+        }
+        private void Btn_Cancel(object sender, RoutedEventArgs e)
+        {
+            RESULT = Result.CANCEL;
             this.Close();
         }
     }

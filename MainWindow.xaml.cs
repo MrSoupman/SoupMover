@@ -282,25 +282,83 @@ namespace SoupMover
             
         }
 
-        private void Move(object sender, RoutedEventArgs e)
+        private void MoveFiles(object sender, RoutedEventArgs e)
         {
-            Boolean OverwriteAll = false;
+            //TODO: Get user confirmation to move files
+            //Lock all buttons except for cancel until process is complete
+            //Maybe show some feedback that program is moving a file? Would be nice for larger files
+            //TestFinal.xml is broke yo
+            //Might want to thread.sleep after a move is finished
+            bool OverwriteAll = false;
+            bool NoToAll = false;
             for (int i = 0; i < listDirectories.Count; i++)
             {
-                foreach (string file in listDestination[i])
+                if(!Directory.Exists(listDirectories[i]))
                 {
-                    String destination = listDirectories[i] + "\\" + Path.GetFileName(file);
-                    if (!File.Exists(destination))
+                    MessageBox.Show("Error: directory " + listDirectories[i] + " not found. Was this from an old save?","Error",MessageBoxButton.OK,MessageBoxImage.Error);
+                    intCurrentFile += listDestination[i].Count; //since the directory straight up does not exist, add all the files to the progress and move on
+                    listDestination[i].Clear();
+                    continue;
+                }
+                foreach (string file in listDestination[i]) 
+                {
+                    if (!File.Exists(file))
                     {
-                        File.Move(file, destination);
-                        listDestination[i].Remove(file);
+                        MessageBox.Show("Error: source file " + file + " not found. Was this from an old save?", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        intCurrentFile++;
+                        UpdateProgress();
+                        continue;
+                    }
+                    string destination = listDirectories[i] + "\\" + Path.GetFileName(file);
+                    if (!File.Exists(destination) || OverwriteAll)
+                    {
+                        File.Move(file, destination,true);
+                    }
+                    else if (!OverwriteAll && !NoToAll) //no data on either no to all or overwrite all
+                    {
+                        FileCompare compare = new FileCompare(file, destination);
+                        compare.ShowDialog();
+                        if (compare.RESULT == Result.YES)
+                        {
+                            File.Move(file, destination, true);
+                        }
+                        else if (compare.RESULT == Result.YESTOALL)
+                        {
+                            OverwriteAll = true;
+                            File.Move(file, destination, true);
+                        }
+                        else if (compare.RESULT == Result.KEEPBOTH)
+                        {
+                            string ext = Path.GetExtension(file);
+                            string filename = Path.GetFileNameWithoutExtension(file);
+                            //First we need the amount of duplicates that are in the folder
+                            //Since we'll be off by one due to the original file not including a (x), we add one
+                            int count = (Directory.GetFiles(listDirectories[i], filename + " (?)" + ext)).Length + 2;
+                            destination = listDirectories[i] + "\\" + Path.GetFileNameWithoutExtension(file) + " (" + count + ")" + ext;
+                            File.Move(file, destination);
+                        }
+                        else if (compare.RESULT == Result.NOTOALL)
+                        {
+                            NoToAll = true;
+                            listSourceFiles.Add(file);
+                        }
+                        else if (compare.RESULT == Result.CANCEL)
+                            return;
+                        else
+                        {
+                            listSourceFiles.Add(file);
+                        }
                     }
                     
                     intCurrentFile++;
                     UpdateProgress();
                 }
+                listDestination[i].Clear(); //clear the i-th list of destinations since we're done with them
 
             }
+            intCurrentFile = 0;
+            intTotalFiles = 0;
+            RefreshListViews();
         }
 
         public MainWindow()
