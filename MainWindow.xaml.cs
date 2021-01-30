@@ -30,7 +30,6 @@ namespace SoupMover
         List<string> listSourceFiles = new List<string>(); //list to store all source files
         List<FilesToMove> directories = new List<FilesToMove>(); //list to store all files to move
         int intCurrentFile = 0,intTotalFiles = 0; //current file tracks which file is being moved, total tracks all files
-        private static Mutex mutex = new Mutex();
 
         private void Debug(object sender, RoutedEventArgs e)
         {
@@ -46,7 +45,7 @@ namespace SoupMover
                 pb.Value = 0;
         }
 
-        private void RefreshListViews()
+        private void RefreshListViews() //TODO: Replace List with ObservableList, and remove this method
         {
             //refreshes all list views so it reflects any changes made to lists
             listViewSourceFiles.Items.Refresh();
@@ -270,7 +269,8 @@ namespace SoupMover
         {
             if(e.AddedItems.Count > 0)
             {
-                int index = directories.IndexOf(new FilesToMove(e.AddedItems[0].ToString()));
+                FilesToMove ftm = new FilesToMove(e.AddedItems[0].ToString());
+                int index = directories.IndexOf(ftm);
                 listViewDestination.ItemsSource = directories[index].GetFiles();
                 RefreshListViews();
             }
@@ -292,11 +292,12 @@ namespace SoupMover
             worker.WorkerReportsProgress = true;
             worker.DoWork += Worker_DoWork;
             worker.ProgressChanged += Worker_ProgressChanged;
+            worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
             bool OverwriteAll = false;
             bool NoToAll = false;
             for (int i = 0; i < directories.Count; i++) //we initially check for duplicate files or invalid directories
             {
-                List<String> removedFiles = new List<string>();
+                List<string> removedFiles = new List<string>();
                 if (!Directory.Exists(directories[i].GetDirectory()))
                 {
                     MessageBox.Show("Error: directory " + directories[i].GetDirectory() + " not found. Was this from an old save?", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -313,25 +314,18 @@ namespace SoupMover
                         continue;
                     }
                     string destination = directories[i].GetDirectory() + "\\" + Path.GetFileName(file);
-
-                    /*
-                    if (File.Exists(destination) && !OverwriteAll) //if file exists at destination and overwrite flag isn't set:
-                    { 
-                        worker.RunWorkerAsync(new Tuple<string, string, bool>(file, destination, true));
-                    }
-                    else if (!OverwriteAll && !NoToAll) //no data on either no to all or overwrite all
+                    if (File.Exists(destination) && !OverwriteAll) //file already exists at destination, and no overwrite flag set
                     {
-
                         FileCompare compare = new FileCompare(file, destination);
                         compare.ShowDialog();
-                        if (compare.RESULT == Result.YES)
-                        {
-                            worker.RunWorkerAsync(new Tuple<string, string, bool>(file, destination, true));
-                        }
-                        else if (compare.RESULT == Result.YESTOALL)
-                        {
+                        if (compare.RESULT == Result.YESTOALL)
                             OverwriteAll = true;
-                            worker.RunWorkerAsync(new Tuple<string, string, bool>(file, destination, true));
+                        else if (compare.RESULT == Result.NO)
+                            removedFiles.Add(file);
+                        else if (compare.RESULT == Result.NOTOALL)
+                        {
+                            NoToAll = true;
+                            removedFiles.Add(file);
                         }
                         else if (compare.RESULT == Result.KEEPBOTH)
                         {
@@ -341,61 +335,87 @@ namespace SoupMover
                             //Since we'll be off by one due to the original file not including a (x), we add one
                             int offset = (Directory.GetFiles(directories[i].GetDirectory(), filename + " (?)" + ext)).Length + 2;
                             destination = directories[i].GetDirectory() + "\\" + Path.GetFileNameWithoutExtension(file) + " (" + offset + ")" + ext;
-                            worker.RunWorkerAsync(new Tuple<string, string, bool>(file, destination, false));
-
-                        }
-                        else if (compare.RESULT == Result.NOTOALL)
-                        {
-                            NoToAll = true;
-                            listSourceFiles.Add(file);
+                            File.Move(file, Path.GetFullPath(file) + Path.GetFileName(destination)); //Renames file
+                            if (!directories[i].UpdateFileName(file, destination)) //Attempts to update the file name within the db
+                            {
+                                MessageBox.Show("Unexpected Error, something went wrong trying to keep both files. It may not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                return;
+                            }
                         }
                         else if (compare.RESULT == Result.CANCEL)
-                        {
-                            worker.CancelAsync();
-                            Thread.Sleep(1000);
-                            return; //user clicked on cancel, cease all actions
-                        }
-                        else
-                        {
-                            listSourceFiles.Add(file);
-                        }
-                    */
+                            return;
+
                     }
-
-                    intCurrentFile++;
-                    UpdateProgress();
+                    else if (File.Exists(destination) && NoToAll)
+                    {
+                        removedFiles.Add(file);
+                    }
                 }
-                directories[i].Clear(); //clear the i-th list of destinations since we're done with them
 
+            }
+            worker.RunWorkerAsync(intTotalFiles);
+        }
+
+        private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Error != null)
+            {
+                string logName = Directory.GetCurrentDirectory() + "\\" + DateTime.Now.ToString("MM-dd-yy-hhmmss") + ".txt";
+                if (!File.Exists(logName))
+                {
+                    File.Create(logName).Dispose();
+                }
+                using (StreamWriter writer = File.AppendText(logName))
+                {
+                    writer.WriteLine("Exception Dump on " + DateTime.Now.ToString("MM-dd-yy-hhmmss"));
+                    writer.WriteLine("----------------------------------------\n");
+                    writer.WriteLine(e.Error);
+                    writer.WriteLine("----------------------------------------");
+                    writer.WriteLine("End of dump.");
+                }
+            }
+            else 
+            {
+                MessageBox.Show("All files moved.","Success",MessageBoxButton.OK,MessageBoxImage.Information);
             }
         }
 
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
         {
-            Tuple<string,string,bool> args = e.Argument as Tuple<string, string, bool>;
-            string file = args.Item1;
-            string destination = args.Item2;
-            bool overwrite = args.Item3;
-            File.Move(file, destination, overwrite);
-
-            (sender as BackgroundWorker).ReportProgress(1);
-            Thread.Sleep(300);
+           
+            int totalFiles = (int)e.Argument, currentFiles = 0;
+            for (int i = 0; i < directories.Count; i++)
+            {
+                for (int j = 0; j < directories[i].Count(); j++)
+                {
+                    try
+                    {
+                        //Need to set up a way to deal with dupe files within THIS section as well
+                        string file = directories[i].GetFile(j); //The file to move
+                        string destination = directories[i].GetDirectory() + "\\" +  Path.GetFileName(directories[i].GetFile(j)); //The destination folder
+                        File.Move(file, destination);
+                        
+                    }
+                    catch (Exception exc)
+                    {
+                        throw exc;
+                    }
+                    currentFiles++;
+                    int prog = Convert.ToInt32(((double)currentFiles / (double)totalFiles) * 100);
+                    (sender as BackgroundWorker).ReportProgress(prog, currentFiles);
+                    Thread.Sleep(100);
+                }
+            }
 
         }
 
         private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            /**
-             * Passed in args list:
-             * >0 the actual progress
-             * -1 duplicate file detected in directory
-             * -2 source file does not exist
-             */
-            UpdateProgress();
-            if (((int)e.ProgressPercentage) > 0)
-                UpdateProgress();
-            else if()
+            pb.Value = e.ProgressPercentage;
+            txtProg.Text = e.UserState.ToString() + "/" + intTotalFiles;
+            
         }
+
 
         public MainWindow()
         {

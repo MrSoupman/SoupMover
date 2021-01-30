@@ -21,7 +21,7 @@ namespace SoupMover
             Files = new List<string>();
         }
         /// <summary>
-        /// Adds a file to the directory, if it doesn't already exist.
+        /// Adds a file to the directory, if it doesn't already exist. 
         /// </summary>
         /// <param name="file"></param>
         /// <returns>true if file was successfully added to the queue, false if it is already included</returns>
@@ -84,6 +84,11 @@ namespace SoupMover
         {
             return GetDirectory();
         }
+        public override bool Equals(object obj)
+        {
+            FilesToMove temp = obj as FilesToMove;
+            return temp.ToString() == this.ToString();
+        }
         /// <summary>
         /// Returns a List of all files queued to this directory.
         /// </summary>
@@ -91,6 +96,12 @@ namespace SoupMover
         public List<string> GetFiles()
         {
             return Files;
+        }
+        public string GetFile(int index)
+        {
+            if (index > Files.Count - 1)
+                throw new IndexOutOfRangeException();
+            return Files[index];
         }
         /// <summary>
         /// Returns the amount of files that are queued to this directory.
@@ -106,6 +117,22 @@ namespace SoupMover
         public void Clear()
         {
             Files.Clear();
+        }
+        /// <summary>
+        /// Looks for a file, and changes its name, if it exists in the list.
+        /// </summary>
+        /// <param name="FileToFind"></param>
+        /// <param name="NewName"></param>
+        /// <returns>True if the file exists and was sucessfully updated, false otherwise.</returns>
+        public bool UpdateFileName(string FileToFind, string NewName)
+        {
+            int index = Files.IndexOf(FileToFind);
+            if (index > -1)
+            { 
+                Files[index] = NewName;
+                return true;
+            }
+            return false;
         }
     }
 }
