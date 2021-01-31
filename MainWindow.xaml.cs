@@ -30,7 +30,7 @@ namespace SoupMover
         List<string> listSourceFiles = new List<string>(); //list to store all source files
         List<FilesToMove> directories = new List<FilesToMove>(); //list to store all files to move
         int intCurrentFile = 0,intTotalFiles = 0; //current file tracks which file is being moved, total tracks all files
-
+		BackgroundWorker worker = new BackgroundWorker();
         private void Debug(object sender, RoutedEventArgs e)
         {
             //FileCompare compare = new FileCompare();
@@ -311,11 +311,8 @@ namespace SoupMover
             MessageBoxResult result = MessageBox.Show("Are you sure you want to move the files?", "Move all files?", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
             if (result == MessageBoxResult.No)
                 return;
-            BackgroundWorker worker = new BackgroundWorker();
-            worker.WorkerReportsProgress = true;
-            worker.DoWork += Worker_DoWork;
-            worker.ProgressChanged += Worker_ProgressChanged;
-            worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
+            
+            
             bool OverwriteAll = false;
             bool NoToAll = false;
             for (int i = 0; i < directories.Count; i++) //we initially check for duplicate files or invalid directories
@@ -427,6 +424,11 @@ namespace SoupMover
                 List<string> removedFiles = new List<string>();
                 for (int j = 0; j < directories[i].Count(); j++)
                 {
+					if(worker.CancellationPending == true)
+					{
+						e.Cancel = true;
+						return;
+					}
                     string file = directories[i].GetFile(j); //The file to move
                     string destination = directories[i].GetDirectory() + "\\" + Path.GetFileName(directories[i].GetFile(j)); //The destination folder
                     if (File.Exists(file) && !File.Exists(destination)) //to be ABSOLUTELY CERTAIN, once we get to this file it exists in the source directory and not in the destination folder as well
@@ -459,9 +461,20 @@ namespace SoupMover
             
         }
 
-
+		private void Cancel(object sender, ProgressChangedEventArgs e)
+		{
+			MessageBoxResult result = MessageBox.Show("Are you sure you want to cancel moving?","Cancel?",MessageBoxButton.YesNo,MessageBoxImage.Question);
+			if(result == MessageBoxButton.Yes)
+				worker.CancelAsync();
+		}
+		
         public MainWindow()
         {
+			worker.WorkerSupportsCancellation = true;
+			worker.WorkerReportsProgress = true;
+            worker.DoWork += Worker_DoWork;
+            worker.ProgressChanged += Worker_ProgressChanged;
+            worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
             InitializeComponent();
             listViewSourceFiles.ItemsSource = listSourceFiles; //binds List source files to the list view
             listViewDirectories.ItemsSource = directories;
