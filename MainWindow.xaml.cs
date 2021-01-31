@@ -36,6 +36,29 @@ namespace SoupMover
             //FileCompare compare = new FileCompare();
             //compare.ShowDialog();
         }
+        private void DisableButtons()
+        {
+            btnAddFiles.IsEnabled = false;
+            btnRemoveFiles.IsEnabled = false;
+            btnMoveTo.IsEnabled = false;
+            btnMoveFrom.IsEnabled = false;
+            btnAddDirectory.IsEnabled = false;
+            btnRemoveDirectory.IsEnabled = false;
+            btnMove.IsEnabled = false;
+            btnUndo.IsEnabled = false;
+        }
+
+        private void EnableButtons()
+        {
+            btnAddFiles.IsEnabled = true;
+            btnRemoveFiles.IsEnabled = true;
+            btnMoveTo.IsEnabled = true;
+            btnMoveFrom.IsEnabled = true;
+            btnAddDirectory.IsEnabled = true;
+            btnRemoveDirectory.IsEnabled = true;
+            btnMove.IsEnabled = true;
+            btnUndo.IsEnabled = true;
+        }
         private void UpdateProgress()
         {
             txtProg.Text = (intCurrentFile + "/" + intTotalFiles);
@@ -353,6 +376,7 @@ namespace SoupMover
                 }
 
             }
+            DisableButtons();
             worker.RunWorkerAsync(intTotalFiles);
         }
 
@@ -373,11 +397,25 @@ namespace SoupMover
                     writer.WriteLine("----------------------------------------");
                     writer.WriteLine("End of dump.");
                 }
+                MessageBox.Show("An error has occurred while moving files. An exception log has been created where this program exists.","Error",MessageBoxButton.OK,MessageBoxImage.Error);
             }
-            else 
+            bool finished = true;
+            foreach (FilesToMove dirs in directories)
             {
-                MessageBox.Show("All files moved.","Success",MessageBoxButton.OK,MessageBoxImage.Information);
+                MessageBoxResult result = MessageBoxResult.None;
+                if (dirs.Count() != 0 && finished == true)
+                {
+                    result = MessageBox.Show("Some files could not be moved successfully. Would you like to keep the files and try again? (Selecting No will return them back to the source list.)", "Retry?", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
+                    finished = false;
+                }
+                else if (dirs.Count() != 0 && result == MessageBoxResult.No)
+                {
+                    foreach (string file in dirs.GetFiles())
+                        listSourceFiles.Add(file);
+                }
             }
+            MessageBox.Show("All files moved.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            EnableButtons();
         }
 
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
@@ -386,25 +424,30 @@ namespace SoupMover
             int totalFiles = (int)e.Argument, currentFiles = 0;
             for (int i = 0; i < directories.Count; i++)
             {
+                List<string> removedFiles = new List<string>();
                 for (int j = 0; j < directories[i].Count(); j++)
                 {
-                    try
+                    string file = directories[i].GetFile(j); //The file to move
+                    string destination = directories[i].GetDirectory() + "\\" + Path.GetFileName(directories[i].GetFile(j)); //The destination folder
+                    if (File.Exists(file) && !File.Exists(destination)) //to be ABSOLUTELY CERTAIN, once we get to this file it exists in the source directory and not in the destination folder as well
                     {
-                        //Need to set up a way to deal with dupe files within THIS section as well
-                        string file = directories[i].GetFile(j); //The file to move
-                        string destination = directories[i].GetDirectory() + "\\" +  Path.GetFileName(directories[i].GetFile(j)); //The destination folder
-                        File.Move(file, destination);
-                        
+                        try
+                        {
+                            File.Move(file, destination);
+                            removedFiles.Add(file);
+                        }
+                        catch (Exception exc)
+                        {
+                            throw exc;
+                        }
+                        currentFiles++;
+                        int prog = Convert.ToInt32(((double)currentFiles / (double)totalFiles) * 100);
+                        (sender as BackgroundWorker).ReportProgress(prog, currentFiles); //pass along the actual progress as well as the numerical amount of files that have been moved
+                        Thread.Sleep(100);
                     }
-                    catch (Exception exc)
-                    {
-                        throw exc;
-                    }
-                    currentFiles++;
-                    int prog = Convert.ToInt32(((double)currentFiles / (double)totalFiles) * 100);
-                    (sender as BackgroundWorker).ReportProgress(prog, currentFiles);
-                    Thread.Sleep(100);
                 }
+                foreach (string removed in removedFiles)
+                    directories[i].Remove(removed);
             }
 
         }
