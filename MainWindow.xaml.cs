@@ -464,7 +464,7 @@ namespace SoupMover
 		private void Cancel(object sender, ProgressChangedEventArgs e)
 		{
 			MessageBoxResult result = MessageBox.Show("Are you sure you want to cancel moving?","Cancel?",MessageBoxButton.YesNo,MessageBoxImage.Question);
-			if(result == MessageBoxButton.Yes)
+			if(result == MessageBoxResult.Yes)
 				worker.CancelAsync();
 		}
 		
