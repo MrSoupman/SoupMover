@@ -19,6 +19,7 @@ using System.Windows.Shapes;
 using System.Xml;
 using System.Threading;
 using Path = System.IO.Path;
+using MimeTypes;
 
 namespace SoupMover
 {
@@ -74,13 +75,6 @@ namespace SoupMover
 			listViewSourceFiles.Items.Refresh();
 			listViewDirectories.Items.Refresh();
 			listViewDestination.Items.Refresh();
-		}
-		void wb_LoadCompleted(object sender, NavigationEventArgs e)
-		{
-			//hides scroll bar in webview
-			string script = "document.body.style.overflow ='auto'";
-			WebBrowser wb = (WebBrowser)sender;
-			wb.InvokeScript("execScript", new Object[] { script, "JavaScript" });
 		}
 
 		private void Load(object sender, RoutedEventArgs e)
@@ -170,7 +164,7 @@ namespace SoupMover
 		private void About(object sender, RoutedEventArgs e)
 		{
 			MessageBox.Show("Soup Mover V0.4\nSoup Mover is a program for moving files to various folders. " +
-				"Made by MrSoupman.", "About", MessageBoxButton.OK, MessageBoxImage.Information);
+				"Made by MrSoupman.\n Thanks to samuelneff for MimeTypeMap.", "About", MessageBoxButton.OK, MessageBoxImage.Information);
 		}
 
 		private void Reset(object sender, RoutedEventArgs e)
@@ -467,7 +461,68 @@ namespace SoupMover
 			if(result == MessageBoxResult.Yes)
 				worker.CancelAsync();
 		}
-		
+
+		private void HidePreview() 
+		{
+			imgPreview.Visibility = Visibility.Hidden;
+			vidPreview.Visibility = Visibility.Hidden;
+			vidPreview.Stop();
+			txtPreview.Visibility = Visibility.Hidden;
+			txtPreviewScroller.Visibility = Visibility.Hidden;
+			nullPreview.Visibility = Visibility.Hidden;
+
+		}
+
+		private void listViewSourceFiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			if (e.AddedItems.Count > 0)
+			{
+				Uri uri = new Uri(e.AddedItems[0].ToString());
+				listViewDestination.SelectedItems.Clear();
+				//e.AddedItems[0].ToString(); //recently clicked item
+				//wb.NavigateToString("<html><body><p>howdy</p></body></html>"); //webview is VERY expensive resource wise; may be better to switch to image/video viewer, and text box for strings.
+				if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("image"))
+				{
+					HidePreview();
+					imgPreview.Visibility = Visibility.Visible;
+					imgPreview.Source = new BitmapImage(uri);
+				}
+				else if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("video"))
+				{
+					HidePreview();
+					vidPreview.Visibility = Visibility.Visible;
+					vidPreview.Source = uri;
+				}
+				else if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("text"))
+				{
+					HidePreview();
+					try
+					{
+						string contents = File.ReadAllText(e.AddedItems[0].ToString());
+						txtPreviewScroller.Visibility = Visibility.Visible;
+						txtPreview.Visibility = Visibility.Visible;
+						txtPreview.Text = contents;
+					}
+					catch (Exception exc)
+					{
+						nullPreview.Visibility = Visibility.Visible;
+					}
+				}
+				else
+				{
+					HidePreview();
+					nullPreview.Visibility = Visibility.Visible;
+				}
+			}
+		}
+		private void listViewDestination_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			if (e.AddedItems.Count > 0)
+			{
+				listViewSourceFiles.SelectedItems.Clear();
+			}
+		}
+
 		public MainWindow()
 		{
 			worker.WorkerSupportsCancellation = true;

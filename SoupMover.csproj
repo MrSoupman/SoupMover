@@ -12,6 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MimeTypeMapOfficial" Version="1.0.15" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="Images\Missing.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>

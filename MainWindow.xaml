@@ -49,7 +49,7 @@
                 </StackPanel>
                 
                 <GroupBox Header="Source Files" Grid.Column="1">
-                        <ListView Name="listViewSourceFiles" />
+                        <ListView Name="listViewSourceFiles" SelectionChanged="listViewSourceFiles_SelectionChanged" />
                 </GroupBox>
 
                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
@@ -58,14 +58,21 @@
                             " Content="&lt;-" Click="MoveToSource"></Button>
                 </StackPanel>
                     <GroupBox Header="Destination" Grid.Column="4">
-                        <ListView Name="listViewDestination"/>
+                        <ListView Name="listViewDestination" SelectionChanged="listViewDestination_SelectionChanged"/>
                     </GroupBox>
                 </Grid>
             
             <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch"/>
             <!--Pane 2 Needs to be for our image preview-->
             <GroupBox Header="Preview" Margin="5" Grid.Row="3">
-                    <WebBrowser Name="wb" LoadCompleted="wb_LoadCompleted"></WebBrowser>
+                    <Grid>
+                        <Image Name="imgPreview" IsEnabled="False" Visibility="Hidden"/>
+                        <MediaElement Name="vidPreview" IsEnabled="False" Visibility="Hidden" LoadedBehavior="Manual"/>
+                        <ScrollViewer Name="txtPreviewScroller" IsEnabled="False" Visibility="Hidden">
+                            <TextBox Name="txtPreview" IsEnabled="False" Visibility="Hidden" IsReadOnly="True"/>
+                        </ScrollViewer>
+                        <TextBlock Name="nullPreview" IsEnabled="False" Visibility="Hidden">Error, file type not supported or error occurred while trying to read it.</TextBlock>
+                    </Grid>
             </GroupBox>
             
         </Grid>
