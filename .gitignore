@@ -366,3 +366,4 @@ obj/*
 
 Test.txt
 reference.PNG
+*.svg

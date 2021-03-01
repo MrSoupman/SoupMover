@@ -66,12 +66,38 @@
             <!--Pane 2 Needs to be for our image preview-->
             <GroupBox Header="Preview" Margin="5" Grid.Row="3">
                     <Grid>
-                        <Image Name="imgPreview" IsEnabled="False" Visibility="Hidden"/>
-                        <MediaElement Name="vidPreview" IsEnabled="False" Visibility="Hidden" LoadedBehavior="Manual"/>
-                        <ScrollViewer Name="txtPreviewScroller" IsEnabled="False" Visibility="Hidden">
-                            <TextBox Name="txtPreview" IsEnabled="False" Visibility="Hidden" IsReadOnly="True"/>
+                        <Image Name="imgPreview" Visibility="Collapsed"/>
+                        <Grid Name="previewGrid" Visibility="Collapsed">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="0.1*"/>
+                            </Grid.RowDefinitions>
+                            <MediaElement Name="vidPreview" LoadedBehavior="Manual"/>
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="0.1*"/>
+                                    <ColumnDefinition Width="0.1*"/>
+                                    <ColumnDefinition Width="0.1*"/>
+                                    <ColumnDefinition Width="0.1*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Name="btnPlay" Click="btnPlay_Click">
+                                    <Image Source="Images/play.png"/>
+                                </Button>
+                                <Button Grid.Column="1" Name="btnPause" Click="btnPause_Click">
+                                    <Image Source="Images/pause.png"/>
+                                </Button>
+                                <Button Grid.Column="2" Name="btnMute" Click="btnMute_Click">
+                                    <Image Name="imgAudio" Source="Images/volume-up.png"/>
+                                </Button>
+                                <TextBlock Grid.Column="3" TextAlignment="Center" Name ="lblTime" VerticalAlignment="Center">00:00:00</TextBlock>
+                                <Slider Name="slider" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="4" ValueChanged="slider_ValueChanged" Thumb.DragCompleted="slider_DragCompleted"/>
+                            </Grid>
+                        </Grid>
+                        <ScrollViewer Name="txtPreviewScroller" Visibility="Collapsed">
+                            <TextBox Name="txtPreview" Visibility="Collapsed" IsReadOnly="True"/>
                         </ScrollViewer>
-                        <TextBlock Name="nullPreview" IsEnabled="False" Visibility="Hidden">Error, file type not supported or error occurred while trying to read it.</TextBlock>
+                        <TextBlock Name="nullPreview" Visibility="Collapsed">Error, file type not supported or error occurred while trying to read it.</TextBlock>
                     </Grid>
             </GroupBox>
             

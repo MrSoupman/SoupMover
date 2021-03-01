@@ -18,8 +18,10 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml;
 using System.Threading;
+using System.Windows.Threading;
 using Path = System.IO.Path;
 using MimeTypes;
+
 
 namespace SoupMover
 {
@@ -32,6 +34,8 @@ namespace SoupMover
 		List<FilesToMove> directories = new List<FilesToMove>(); //list to store all files to move
 		int intCurrentFile = 0,intTotalFiles = 0; //current file tracks which file is being moved, total tracks all files
 		BackgroundWorker worker = new BackgroundWorker();
+		DispatcherTimer time = new DispatcherTimer();
+
 		private void Debug(object sender, RoutedEventArgs e)
 		{
 			//FileCompare compare = new FileCompare();
@@ -464,55 +468,64 @@ namespace SoupMover
 
 		private void HidePreview() 
 		{
-			imgPreview.Visibility = Visibility.Hidden;
-			vidPreview.Visibility = Visibility.Hidden;
+			imgPreview.Visibility = Visibility.Collapsed;
+			previewGrid.Visibility = Visibility.Collapsed;
 			vidPreview.Stop();
-			txtPreview.Visibility = Visibility.Hidden;
-			txtPreviewScroller.Visibility = Visibility.Hidden;
-			nullPreview.Visibility = Visibility.Hidden;
+			txtPreview.Visibility = Visibility.Collapsed;
+			txtPreviewScroller.Visibility = Visibility.Collapsed;
+			nullPreview.Visibility = Visibility.Collapsed;
+			
 
 		}
+
+		private void PreviewHandler(string file)
+		{
+			Uri uri = new Uri(file);
+			if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("image"))
+			{
+				HidePreview();
+				imgPreview.Visibility = Visibility.Visible;
+				imgPreview.Source = new BitmapImage(uri);
+			}
+			else if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("video"))
+			{
+				HidePreview();
+				previewGrid.Visibility = Visibility.Visible;
+				time.Start();
+				vidPreview.Source = uri;
+				vidPreview.Play();
+				
+			}
+			else if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("text"))
+			{
+				HidePreview();
+				try
+				{
+					string contents = File.ReadAllText(file);
+					txtPreviewScroller.Visibility = Visibility.Visible;
+					txtPreview.Visibility = Visibility.Visible;
+					txtPreview.Text = contents;
+				}
+				catch (Exception exc)
+				{
+					nullPreview.Visibility = Visibility.Visible;
+				}
+			}
+			else
+			{
+				HidePreview();
+				nullPreview.Visibility = Visibility.Visible;
+			}
+		}
+
+
 
 		private void listViewSourceFiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			if (e.AddedItems.Count > 0)
 			{
-				Uri uri = new Uri(e.AddedItems[0].ToString());
 				listViewDestination.SelectedItems.Clear();
-				//e.AddedItems[0].ToString(); //recently clicked item
-				//wb.NavigateToString("<html><body><p>howdy</p></body></html>"); //webview is VERY expensive resource wise; may be better to switch to image/video viewer, and text box for strings.
-				if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("image"))
-				{
-					HidePreview();
-					imgPreview.Visibility = Visibility.Visible;
-					imgPreview.Source = new BitmapImage(uri);
-				}
-				else if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("video"))
-				{
-					HidePreview();
-					vidPreview.Visibility = Visibility.Visible;
-					vidPreview.Source = uri;
-				}
-				else if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("text"))
-				{
-					HidePreview();
-					try
-					{
-						string contents = File.ReadAllText(e.AddedItems[0].ToString());
-						txtPreviewScroller.Visibility = Visibility.Visible;
-						txtPreview.Visibility = Visibility.Visible;
-						txtPreview.Text = contents;
-					}
-					catch (Exception exc)
-					{
-						nullPreview.Visibility = Visibility.Visible;
-					}
-				}
-				else
-				{
-					HidePreview();
-					nullPreview.Visibility = Visibility.Visible;
-				}
+				PreviewHandler(e.AddedItems[0].ToString());
 			}
 		}
 		private void listViewDestination_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -520,10 +533,63 @@ namespace SoupMover
 			if (e.AddedItems.Count > 0)
 			{
 				listViewSourceFiles.SelectedItems.Clear();
+				PreviewHandler(e.AddedItems[0].ToString());
 			}
 		}
 
-		public MainWindow()
+		private void Time_Tick(object sender, EventArgs e)
+		{
+			if (vidPreview.Source != null && vidPreview.NaturalDuration.HasTimeSpan)
+			{
+				slider.Minimum = 0;
+				slider.Maximum = vidPreview.NaturalDuration.TimeSpan.TotalSeconds;
+				slider.Value = vidPreview.Position.TotalSeconds;
+			}
+		}
+
+        private void btnPause_Click(object sender, RoutedEventArgs e)
+        {
+			vidPreview.Pause();
+			time.Stop();
+        }
+
+        private void btnPlay_Click(object sender, RoutedEventArgs e)
+        {
+			vidPreview.Play();
+			time.Start();
+        }
+
+        private void btnMute_Click(object sender, RoutedEventArgs e)
+        {
+			if (vidPreview.IsMuted)
+			{
+				string image = @"D:\Programming Projects\C#\SoupMover\Images\volume-up.png";
+				Uri uri = new Uri(image);
+				vidPreview.Volume = 0.5;
+				imgAudio.Source = new BitmapImage(uri);
+				vidPreview.IsMuted = false;
+			}
+			else
+			{
+				string image = @"D:\Programming Projects\C#\SoupMover\Images\volume-off.png";
+				Uri uri = new Uri(image);
+				vidPreview.Volume = 0;
+				imgAudio.Source = new BitmapImage(uri);
+				vidPreview.IsMuted = true;
+			}
+        }
+
+        private void slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+			lblTime.Text = TimeSpan.FromSeconds(slider.Value).ToString(@"hh\:mm\:ss");
+        }
+
+        private void slider_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        {
+			vidPreview.Position = TimeSpan.FromSeconds(slider.Value);
+        }
+
+        public MainWindow()
 		{
 			worker.WorkerSupportsCancellation = true;
 			worker.WorkerReportsProgress = true;
@@ -533,8 +599,10 @@ namespace SoupMover
 			InitializeComponent();
 			listViewSourceFiles.ItemsSource = listSourceFiles; //binds List source files to the list view
 			listViewDirectories.ItemsSource = directories;
+			time.Interval = TimeSpan.FromSeconds(1);
+            time.Tick += Time_Tick;
 		}
 
-		
-	}
+        
+    }
 }
