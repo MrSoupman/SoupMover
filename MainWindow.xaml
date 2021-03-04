@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
         xmlns:local="clr-namespace:SoupMover"
         mc:Ignorable="d"
         Title="Soup Mover" Height="500" Width="675">
@@ -17,8 +18,6 @@
             <MenuItem Header="_Help">
                 <MenuItem Header="_About" Click="About"/>
                 <MenuItem Header="_Reset" Click="Reset"/>
-                <MenuItem Header="_Github Page" Click="GithubPage"/>
-                <MenuItem Header="_Debug" Click="Debug"/>
             </MenuItem>
         </Menu>
         <Grid>
@@ -67,12 +66,12 @@
             <GroupBox Header="Preview" Margin="5" Grid.Row="3">
                     <Grid>
                         <Image Name="imgPreview" Visibility="Collapsed"/>
-                        <Grid Name="previewGrid" Visibility="Collapsed">
+                        <Grid Name="previewGrid" Visibility="Hidden">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="0.1*"/>
                             </Grid.RowDefinitions>
-                            <MediaElement Name="vidPreview" LoadedBehavior="Manual"/>
+                            <vlc:VideoView Name="vidPreview"/>
                             <Grid Grid.Row="1">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="0.1*"/>
@@ -124,7 +123,6 @@
                     <TextBlock Name="txtProg" FontSize="25" TextAlignment="Center">0/0</TextBlock>
                     <Button Name="btnMove" Margin="5 0 5 5" Click="MoveHandler">Move</Button>
                     <Button Name="btnCancel" Margin="5 0 5 5">Cancel</Button>
-                    <Button Name="btnUndo" Margin="5 0 5 5">Undo</Button>
                 </StackPanel>
             </Grid>
         </Grid>

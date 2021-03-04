@@ -1,21 +1,31 @@
 # SoupMover
-Program to batch move files from the same or different folders to any other folder. Has ability to view most types of media.
+SoupMover is a Windows application with the ability to move a batch of files to different directories. It is able to preview most file types such as PNG, JPG, WebM, MP4, Text files and more. 
+
+# Features
+* Move a batch of files into different folders at the same time
+* Save and load batches
+* Preview files
+
+# Requirements
+* At least Windows 10 (Untested on other versions)
+* [.NET Core >= 3.1](https://dotnet.microsoft.com/download/dotnet/3.1/runtime)
 
 # Usage
-First, Add files using the "Add File" button. Add as many files as you want.
+1. Add files using the "Add File" button. Add as many files as you want.
 
-Next, Add directories that you want to move them to using the "Add Directory".
+2. Add directories that you want to move them to using the "Add Directory".
 
-Third, Click on a directory you'd like to move some files to.
+3. Click on a directory you'd like to move some files to.
 
-Fourth, Click on items in the source files list. You can see what these files are in the preview below.
+4. Click on items in the source files list. You can see what these files are in the preview below.
 
-Fifth, Click on the "->" button to queue files to be moved to the specified directory.
+5. Click on the "->" button to queue files to be moved to the specified directory.
 
-Sixth, Repeat until all files desired are queued to move to the desired directory.
+6. Repeat until all files desired are queued to move to the desired directory.
 
-Finally, Click on move to move all files.
+7. Click on move to move all files.
 
+# Pictures
 
 # License
 Soup Mover is a program to batch move files to various folders.

@@ -21,7 +21,8 @@ using System.Threading;
 using System.Windows.Threading;
 using Path = System.IO.Path;
 using MimeTypes;
-
+using LibVLCSharp.WPF;
+using LibVLCSharp.Shared;
 
 namespace SoupMover
 {
@@ -35,12 +36,9 @@ namespace SoupMover
 		int intCurrentFile = 0,intTotalFiles = 0; //current file tracks which file is being moved, total tracks all files
 		BackgroundWorker worker = new BackgroundWorker();
 		DispatcherTimer time = new DispatcherTimer();
+		LibVLC lib;
+		LibVLCSharp.Shared.MediaPlayer media;
 
-		private void Debug(object sender, RoutedEventArgs e)
-		{
-			//FileCompare compare = new FileCompare();
-			//compare.ShowDialog();
-		}
 		private void DisableButtons()
 		{
 			btnAddFiles.IsEnabled = false;
@@ -50,7 +48,6 @@ namespace SoupMover
 			btnAddDirectory.IsEnabled = false;
 			btnRemoveDirectory.IsEnabled = false;
 			btnMove.IsEnabled = false;
-			btnUndo.IsEnabled = false;
 		}
 
 		private void EnableButtons()
@@ -62,7 +59,6 @@ namespace SoupMover
 			btnAddDirectory.IsEnabled = true;
 			btnRemoveDirectory.IsEnabled = true;
 			btnMove.IsEnabled = true;
-			btnUndo.IsEnabled = true;
 		}
 		private void UpdateProgress()
 		{
@@ -167,8 +163,8 @@ namespace SoupMover
 
 		private void About(object sender, RoutedEventArgs e)
 		{
-			MessageBox.Show("Soup Mover V0.4\nSoup Mover is a program for moving files to various folders. " +
-				"Made by MrSoupman.\n Thanks to samuelneff for MimeTypeMap.", "About", MessageBoxButton.OK, MessageBoxImage.Information);
+			MessageBox.Show("Soup Mover V0.8\nSoup Mover is a program for moving files to various folders. " +
+				"Made by MrSoupman.\n Thanks to samuelneff for MimeTypeMap, Mono Company for their icons.", "About", MessageBoxButton.OK, MessageBoxImage.Information);
 		}
 
 		private void Reset(object sender, RoutedEventArgs e)
@@ -183,10 +179,6 @@ namespace SoupMover
 			UpdateProgress();
 		}
 
-		private void GithubPage(object sender, RoutedEventArgs e)
-		{
-
-		}
 
 		private void AddFiles(object sender, RoutedEventArgs e)
 		{
@@ -469,8 +461,8 @@ namespace SoupMover
 		private void HidePreview() 
 		{
 			imgPreview.Visibility = Visibility.Collapsed;
-			previewGrid.Visibility = Visibility.Collapsed;
-			vidPreview.Stop();
+			previewGrid.Visibility = Visibility.Hidden;
+			media.Stop();
 			txtPreview.Visibility = Visibility.Collapsed;
 			txtPreviewScroller.Visibility = Visibility.Collapsed;
 			nullPreview.Visibility = Visibility.Collapsed;
@@ -487,14 +479,15 @@ namespace SoupMover
 				imgPreview.Visibility = Visibility.Visible;
 				imgPreview.Source = new BitmapImage(uri);
 			}
-			else if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("video"))
+			else if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("video") || MimeTypeMap.GetMimeType(uri.ToString()).Contains("audio"))
 			{
 				HidePreview();
 				previewGrid.Visibility = Visibility.Visible;
+				previewGrid.BringIntoView();
 				time.Start();
-				vidPreview.Source = uri;
-				vidPreview.Play();
-				
+				media.Play(new Media(lib, uri));
+				media.Volume = 100;
+
 			}
 			else if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("text"))
 			{
@@ -519,7 +512,6 @@ namespace SoupMover
 		}
 
 
-
 		private void listViewSourceFiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			if (e.AddedItems.Count > 0)
@@ -539,44 +531,44 @@ namespace SoupMover
 
 		private void Time_Tick(object sender, EventArgs e)
 		{
-			if (vidPreview.Source != null && vidPreview.NaturalDuration.HasTimeSpan)
-			{
-				slider.Minimum = 0;
-				slider.Maximum = vidPreview.NaturalDuration.TimeSpan.TotalSeconds;
-				slider.Value = vidPreview.Position.TotalSeconds;
-			}
+			slider.Minimum = 0;
+			slider.Maximum = media.Length / 1000;
+			slider.Value = media.Time / 1000;
+
 		}
 
         private void btnPause_Click(object sender, RoutedEventArgs e)
         {
-			vidPreview.Pause();
+			//vidPreview.Pause();
+			media.Pause();
 			time.Stop();
         }
 
         private void btnPlay_Click(object sender, RoutedEventArgs e)
         {
-			vidPreview.Play();
+			//vidPreview.Play();
+			media.Play();
 			time.Start();
         }
 
         private void btnMute_Click(object sender, RoutedEventArgs e)
         {
-			if (vidPreview.IsMuted)
+			
+			if (media.Volume == 0)
 			{
 				string image = @"D:\Programming Projects\C#\SoupMover\Images\volume-up.png";
 				Uri uri = new Uri(image);
-				vidPreview.Volume = 0.5;
+				media.Volume = 100;
 				imgAudio.Source = new BitmapImage(uri);
-				vidPreview.IsMuted = false;
 			}
 			else
 			{
 				string image = @"D:\Programming Projects\C#\SoupMover\Images\volume-off.png";
 				Uri uri = new Uri(image);
-				vidPreview.Volume = 0;
+				media.Volume = 0;
 				imgAudio.Source = new BitmapImage(uri);
-				vidPreview.IsMuted = true;
 			}
+			
         }
 
         private void slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -586,8 +578,17 @@ namespace SoupMover
 
         private void slider_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
         {
-			vidPreview.Position = TimeSpan.FromSeconds(slider.Value);
+			media.Time = (long) TimeSpan.FromSeconds(slider.Value).TotalMilliseconds;
         }
+
+		private void vidPreview_Loaded(object sender, RoutedEventArgs e)
+		{
+			Core.Initialize();
+			lib = new LibVLC();
+			media = new LibVLCSharp.Shared.MediaPlayer(lib);
+			vidPreview.MediaPlayer = media;
+			
+		}
 
         public MainWindow()
 		{
@@ -601,6 +602,7 @@ namespace SoupMover
 			listViewDirectories.ItemsSource = directories;
 			time.Interval = TimeSpan.FromSeconds(1);
             time.Tick += Time_Tick;
+			vidPreview.Loaded += vidPreview_Loaded;
 		}
 
         
