@@ -8,6 +8,7 @@
     <ApplicationIcon>soup icon.ico</ApplicationIcon>
     <Version>0.6</Version>
     <SignAssembly>false</SignAssembly>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +22,7 @@
   <ItemGroup>
     <PackageReference Include="LibVLCSharp.WPF" Version="3.4.9" />
     <PackageReference Include="MimeTypeMapOfficial" Version="1.0.15" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.12" />
   </ItemGroup>
 
@@ -40,5 +42,7 @@
     <Resource Include="Images\volume-up.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+    <VlcWindowsX64IncludeFiles Include="plugins\codec\%2A;plugins\access\%2A;plugins\audio_filter\%2A;plugins\video_output\%2A;plugins\audio_output\%2A;libvlc.dll;libvlccore.dll" />
+    <VlcWindowsX86IncludeFiles Include="@(VlcWindowsX64IncludeFiles)" />
   </ItemGroup>
 </Project>

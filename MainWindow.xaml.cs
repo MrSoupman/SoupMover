@@ -6,23 +6,18 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Xml;
 using System.Threading;
 using System.Windows.Threading;
 using Path = System.IO.Path;
 using MimeTypes;
-using LibVLCSharp.WPF;
+//using LibVLCSharp.WPF;
 using LibVLCSharp.Shared;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace SoupMover
 {
@@ -38,6 +33,32 @@ namespace SoupMover
 		DispatcherTimer time = new DispatcherTimer();
 		LibVLC lib;
 		LibVLCSharp.Shared.MediaPlayer media;
+
+		private void Debug(object sender, RoutedEventArgs e)
+		{
+			string json = File.ReadAllText("aJs.json");
+			//JsonTextReader reader = new JsonTextReader(new StringReader(json));
+			JObject jobj = JObject.Parse(json);
+			IList<JToken> sourceTokens = jobj["SourceFiles"].Children().ToList();
+			foreach (JToken token in sourceTokens)
+				listSourceFiles.Add(token.ToString());
+			IList<JToken> dirTokens = jobj["Directories"].Children().ToList();
+			foreach (JToken token in dirTokens)
+			{
+				JProperty property = token.ToObject<JProperty>();
+				FilesToMove dir = new FilesToMove(property.Name);
+				
+				IList<JToken> files = token.Children().ToList();
+				if (files.Count > 0)
+				{
+					foreach (JToken file in files)
+						dir.Add(file.ToString());
+				}
+				directories.Add(dir);
+			}
+			RefreshListViews();
+			Console.WriteLine();
+		}
 
 		private void DisableButtons()
 		{
@@ -149,6 +170,36 @@ namespace SoupMover
 				xml.Close();
 				MessageBox.Show("Successfully saved list to " + save.FileName, "Success",
 					MessageBoxButton.OK, MessageBoxImage.Information);
+			}
+		}
+
+		private void SaveJ(object sender, RoutedEventArgs e)
+		{
+			SaveFileDialog save = new SaveFileDialog();
+			save.Filter = "XML file (*.xml)|*.xml";
+			if (save.ShowDialog() == true)
+			{
+				StringBuilder sb = new StringBuilder();
+				using (StringWriter sw = new StringWriter(sb))
+				{
+					using (JsonWriter writer = new JsonTextWriter(sw))
+					{
+						writer.Formatting = Newtonsoft.Json.Formatting.Indented;
+						writer.WriteStartObject();
+						writer.WritePropertyName("SourceFiles");
+						writer.WriteValue(JsonConvert.SerializeObject(listSourceFiles));
+						writer.WritePropertyName("Directories");
+						writer.WriteStartObject();
+						foreach (FilesToMove dirs in directories)
+						{
+							writer.WritePropertyName(dirs.GetDirectory());
+							writer.WriteValue(JsonConvert.SerializeObject(dirs.GetFiles()));
+						}
+						writer.WriteEnd();
+						writer.WriteEnd();
+					}
+					File.WriteAllText("aJs.json", sw.ToString());
+				}
 			}
 		}
 
@@ -363,6 +414,7 @@ namespace SoupMover
 				}
 
 			}
+			
 			DisableButtons();
 			worker.RunWorkerAsync(intTotalFiles);
 		}
@@ -386,22 +438,37 @@ namespace SoupMover
 				}
 				MessageBox.Show("An error has occurred while moving files. An exception log has been created where this program exists.","Error",MessageBoxButton.OK,MessageBoxImage.Error);
 			}
-			bool finished = true;
-			foreach (FilesToMove dirs in directories)
+			if (!e.Cancelled)
 			{
-				MessageBoxResult result = MessageBoxResult.None;
-				if (dirs.Count() != 0 && finished == true)
+				bool finished = true;
+				foreach (FilesToMove dirs in directories)
 				{
-					result = MessageBox.Show("Some files could not be moved successfully. Would you like to keep the files and try again? (Selecting No will return them back to the source list.)", "Retry?", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
-					finished = false;
+					MessageBoxResult result = MessageBoxResult.None;
+					if (dirs.Count() != 0 && finished == true)
+					{
+						result = MessageBox.Show("Some files could not be moved successfully. Would you like to keep the files in their selection and try again? (Selecting No will return them back to the source list.)", "Retry?", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
+						finished = false;
+						if(result == MessageBoxResult.No)
+                        {
+							foreach (string file in dirs.GetFiles())
+								listSourceFiles.Add(file);
+							dirs.Clear();
+							RefreshListViews();
+						}
+							
+					}
+					else if (dirs.Count() != 0 && result == MessageBoxResult.No) //todo: I don't think I ever actually finished this?
+					{
+						foreach (string file in dirs.GetFiles())
+							listSourceFiles.Add(file);
+						RefreshListViews();
+					}
 				}
-				else if (dirs.Count() != 0 && result == MessageBoxResult.No)
-				{
-					foreach (string file in dirs.GetFiles())
-						listSourceFiles.Add(file);
-				}
+				MessageBox.Show("All files moved.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 			}
-			MessageBox.Show("All files moved.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+			else
+				MessageBox.Show("Cancelled further moves.", "Cancelled", MessageBoxButton.OK, MessageBoxImage.Information);
+
 			EnableButtons();
 		}
 
@@ -431,12 +498,12 @@ namespace SoupMover
 						catch (Exception exc)
 						{
 							throw exc;
-						}
-						currentFiles++;
-						int prog = Convert.ToInt32(((double)currentFiles / (double)totalFiles) * 100);
-						(sender as BackgroundWorker).ReportProgress(prog, currentFiles); //pass along the actual progress as well as the numerical amount of files that have been moved
-						Thread.Sleep(100);
+						}	
 					}
+					currentFiles++;
+					int prog = Convert.ToInt32(((double)currentFiles / (double)totalFiles) * 100);
+					(sender as BackgroundWorker).ReportProgress(prog, currentFiles); //pass along the actual progress as well as the numerical amount of files that have been moved
+					Thread.Sleep(300);
 				}
 				foreach (string removed in removedFiles)
 					directories[i].Remove(removed);
@@ -451,7 +518,7 @@ namespace SoupMover
 			
 		}
 
-		private void Cancel(object sender, ProgressChangedEventArgs e)
+		private void Cancel(object sender, RoutedEventArgs e)
 		{
 			MessageBoxResult result = MessageBox.Show("Are you sure you want to cancel moving?","Cancel?",MessageBoxButton.YesNo,MessageBoxImage.Question);
 			if(result == MessageBoxResult.Yes)
