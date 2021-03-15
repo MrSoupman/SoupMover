@@ -36,28 +36,7 @@ namespace SoupMover
 
 		private void Debug(object sender, RoutedEventArgs e)
 		{
-			string json = File.ReadAllText("aJs.json");
-			//JsonTextReader reader = new JsonTextReader(new StringReader(json));
-			JObject jobj = JObject.Parse(json);
-			IList<JToken> sourceTokens = jobj["SourceFiles"].Children().ToList();
-			foreach (JToken token in sourceTokens)
-				listSourceFiles.Add(token.ToString());
-			IList<JToken> dirTokens = jobj["Directories"].Children().ToList();
-			foreach (JToken token in dirTokens)
-			{
-				JProperty property = token.ToObject<JProperty>();
-				FilesToMove dir = new FilesToMove(property.Name);
-				
-				IList<JToken> files = token.Children().ToList();
-				if (files.Count > 0)
-				{
-					foreach (JToken file in files)
-						dir.Add(file.ToString());
-				}
-				directories.Add(dir);
-			}
-			RefreshListViews();
-			Console.WriteLine();
+			
 		}
 
 		private void DisableButtons()
@@ -100,28 +79,32 @@ namespace SoupMover
 
 		private void Load(object sender, RoutedEventArgs e)
 		{
-			int index = 0;
 			OpenFileDialog open = new OpenFileDialog();
 			open.Multiselect = false;
-			open.Filter = "XML file (*.xml)|*.xml";
+			open.Filter = "JSON file (*.json)|*.json";
 			if (open.ShowDialog() == true)
 			{
-				Reset(sender,e); //resets the window to prepare loading
-				XmlDocument xml = new XmlDocument();
-				xml.Load(open.FileName);
-				foreach (XmlNode node in xml.DocumentElement.ChildNodes[0].ChildNodes) //adds sourcefiles back to source list
-					listSourceFiles.Add(node.InnerText);
-
-				foreach (XmlNode node in xml.DocumentElement.ChildNodes[1].ChildNodes) //adds directories, and all, if any, files back to the correct directory
+				Reset();
+				using (StreamReader reader = File.OpenText(open.FileName))
 				{
-					directories.Add(new FilesToMove(node.Attributes["dir"].Value));
-					foreach (XmlNode file in xml.DocumentElement.ChildNodes[1].ChildNodes[index])
-					{ 
-						directories[index].Add(file.InnerText);
-						intTotalFiles++;
+					JObject jFile = (JObject)JToken.ReadFrom(new JsonTextReader(reader));
+					JArray sourceArray = JArray.Parse(jFile["SourceFiles"].ToString());
+					foreach (JToken token in sourceArray)
+						listSourceFiles.Add(token.ToString());
+					JObject dirObj = JObject.Parse(jFile["Directories"].ToString());
+					Console.WriteLine(dirObj.Count);
+					foreach (JContainer obj in dirObj.Children())
+					{
+						JProperty property = obj.ToObject<JProperty>();
+						FilesToMove dir = new FilesToMove(property.Name);
+						JArray filesArray = JArray.Parse(property.Value.ToString());
+						foreach (JToken token in filesArray)
+						{
+							dir.Add(token.ToString());
+							intTotalFiles++;
+						}
+						directories.Add(dir);
 					}
-
-					index++;
 				}
 				UpdateProgress();
 				RefreshListViews();
@@ -130,53 +113,8 @@ namespace SoupMover
 
 		private void Save(object sender, RoutedEventArgs e)
 		{
-			int index = 0;
 			SaveFileDialog save = new SaveFileDialog();
-			save.Filter = "XML file (*.xml)|*.xml";
-			if (save.ShowDialog() == true)
-			{
-				XmlWriter xml = XmlWriter.Create(save.FileName);
-				xml.WriteStartDocument();
-				xml.WriteStartElement("root");
-
-				xml.WriteStartElement("SourceFiles");
-				foreach (string filename in listSourceFiles)
-				{
-					xml.WriteStartElement("file");
-					xml.WriteString(filename);
-					xml.WriteEndElement();
-				}
-				xml.WriteEndElement(); //end of SourceFiles
-
-				xml.WriteStartElement("Directories");
-				foreach (FilesToMove directory in directories)
-				{
-					xml.WriteStartElement("Directory");
-					xml.WriteAttributeString("dir", directory.GetDirectory());
-					foreach (string filename in directories[index].GetFiles())
-					{
-						xml.WriteStartElement("file");
-						xml.WriteString(filename);
-						xml.WriteEndElement();
-					}
-					index++;
-					xml.WriteEndElement(); //end of files to move
-
-				}
-				xml.WriteEndElement(); //end of directories
-
-				xml.WriteEndElement(); //end of root
-				xml.WriteEndDocument();
-				xml.Close();
-				MessageBox.Show("Successfully saved list to " + save.FileName, "Success",
-					MessageBoxButton.OK, MessageBoxImage.Information);
-			}
-		}
-
-		private void SaveJ(object sender, RoutedEventArgs e)
-		{
-			SaveFileDialog save = new SaveFileDialog();
-			save.Filter = "XML file (*.xml)|*.xml";
+			save.Filter = "json file (*.json)|*.json";
 			if (save.ShowDialog() == true)
 			{
 				StringBuilder sb = new StringBuilder();
@@ -187,20 +125,31 @@ namespace SoupMover
 						writer.Formatting = Newtonsoft.Json.Formatting.Indented;
 						writer.WriteStartObject();
 						writer.WritePropertyName("SourceFiles");
-						writer.WriteValue(JsonConvert.SerializeObject(listSourceFiles));
+						writer.WriteStartArray();
+						foreach (string file in listSourceFiles)
+							writer.WriteValue(file);
+						writer.WriteEndArray();
 						writer.WritePropertyName("Directories");
 						writer.WriteStartObject();
 						foreach (FilesToMove dirs in directories)
 						{
 							writer.WritePropertyName(dirs.GetDirectory());
-							writer.WriteValue(JsonConvert.SerializeObject(dirs.GetFiles()));
+							writer.WriteStartArray();
+							foreach (string file in dirs.GetFiles())
+								writer.WriteValue(file);
+							writer.WriteEndArray();
 						}
 						writer.WriteEnd();
 						writer.WriteEnd();
 					}
-					File.WriteAllText("aJs.json", sw.ToString());
+					File.WriteAllText(save.FileName, sw.ToString());
 				}
 			}
+		}
+
+		private void SaveJ(object sender, RoutedEventArgs e)
+		{
+			
 		}
 
 		private void Exit(object sender, RoutedEventArgs e)
@@ -215,10 +164,10 @@ namespace SoupMover
 		private void About(object sender, RoutedEventArgs e)
 		{
 			MessageBox.Show("Soup Mover V0.8\nSoup Mover is a program for moving files to various folders. " +
-				"Made by MrSoupman.\n Thanks to samuelneff for MimeTypeMap, Mono Company for their icons.", "About", MessageBoxButton.OK, MessageBoxImage.Information);
+				"Made by MrSoupman.\n Thanks to samuelneff for MimeTypeMap, Mono Company for their icons, and VLC for LibVLCSharp!", "About", MessageBoxButton.OK, MessageBoxImage.Information);
 		}
 
-		private void Reset(object sender, RoutedEventArgs e)
+		private void Reset()
 		{
 			listSourceFiles.Clear();
 			directories.Clear();
@@ -230,6 +179,10 @@ namespace SoupMover
 			UpdateProgress();
 		}
 
+		private void ResetHandler(object sender, RoutedEventArgs e)
+		{
+			Reset();
+		}
 
 		private void AddFiles(object sender, RoutedEventArgs e)
 		{

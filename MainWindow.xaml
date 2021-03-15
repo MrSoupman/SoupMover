@@ -18,7 +18,7 @@
             <MenuItem Header="_Help">
                 <MenuItem Header="_About" Click="About"/>
                 <MenuItem Header="_Debug" Click="Debug"/>
-                <MenuItem Header="_Reset" Click="Reset"/>
+                <MenuItem Header="_Reset" Click="ResetHandler"/>
             </MenuItem>
         </Menu>
         <Grid>
