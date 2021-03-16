@@ -6,7 +6,7 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>soup icon.ico</ApplicationIcon>
-    <Version>0.6</Version>
+    <Version>0.8</Version>
     <SignAssembly>false</SignAssembly>
     <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
