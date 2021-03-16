@@ -26,7 +26,7 @@ SoupMover is a Windows application with the ability to move a batch of files to 
 7. Click on move to move all files.
 
 # Pictures
-
+![Program Image](https://i.imgur.com/wCd8HIR.png)
 # License
 Soup Mover is a program to batch move files to various folders.
     Copyright (C) 2020 MrSoupman
