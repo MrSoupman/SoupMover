@@ -9,7 +9,6 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using System.Xml;
 using System.Threading;
 using System.Windows.Threading;
 using Path = System.IO.Path;
@@ -122,7 +121,7 @@ namespace SoupMover
 				{
 					using (JsonWriter writer = new JsonTextWriter(sw))
 					{
-						writer.Formatting = Newtonsoft.Json.Formatting.Indented;
+						//writer.Formatting = Newtonsoft.Json.Formatting.Indented;
 						writer.WriteStartObject();
 						writer.WritePropertyName("SourceFiles");
 						writer.WriteStartArray();
@@ -420,7 +419,7 @@ namespace SoupMover
 				MessageBox.Show("All files moved.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 			}
 			else
-				MessageBox.Show("Cancelled further moves.", "Cancelled", MessageBoxButton.OK, MessageBoxImage.Information);
+				MessageBox.Show("Cancelled moving remaining files.", "Cancelled", MessageBoxButton.OK, MessageBoxImage.Information);
 
 			EnableButtons();
 		}
