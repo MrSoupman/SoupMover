@@ -13,5 +13,6 @@ namespace SoupMover
     /// </summary>
     public partial class App : Application
     {
+        //TODO: https://stackoverflow.com/questions/793100/globally-catch-exceptions-in-a-wpf-application
     }
 }

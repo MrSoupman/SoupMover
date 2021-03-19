@@ -7,10 +7,10 @@ namespace SoupMover
     /// <summary>
     /// A class used to store data about a directory and the files that are queued to be moved to it.
     /// </summary>
-    class FilesToMove
+    class FilesToMove : IComparable
     {
-        string Directory;
-        List<string> Files;
+        private string Directory;
+        private List<string> Files;
         public FilesToMove() { }
         /// <summary>
         /// Stores a directory and the files to be moved to it.
@@ -80,15 +80,38 @@ namespace SoupMover
         {
             this.Directory = Directory;
         }
+        /// <summary>
+        /// Returns the FilesToMove object as a string, or rather, its directory.
+        /// </summary>
+        /// <returns>The directory that this object points to</returns>
         override public string ToString()
         {
             return GetDirectory();
         }
-        public override bool Equals(object obj)
+        /// <summary>
+        /// Checks if the object being passed in is the same directory as what this current object points to
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns>True if the two point to the same directory, false otherwise</returns>
+        public override bool Equals(object obj) //TODO: At some inexplicable point, this method is called and a null object is passed in. I don't know why or how.
         {
             FilesToMove temp = obj as FilesToMove;
-            return temp.ToString() == this.ToString();
+            if (temp != null)
+                return temp.ToString() == this.ToString();
+            return false;
         }
+
+        public int CompareTo(object obj)
+        {
+            FilesToMove temp = obj as FilesToMove;
+            if (temp != null)
+            {
+                return this.Directory.CompareTo(temp.GetDirectory());
+            }
+            else
+                throw new ArgumentException("Invalid object passed");
+        }
+
         /// <summary>
         /// Returns a List of all files queued to this directory.
         /// </summary>

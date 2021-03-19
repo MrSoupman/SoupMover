@@ -211,12 +211,26 @@ namespace SoupMover
 			using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
 			{
 				System.Windows.Forms.DialogResult result = dialog.ShowDialog(); //WPF .netcore appearently doesn't have a built in directory browser????? for like 7 years now??? ok
-				if (result == System.Windows.Forms.DialogResult.OK && !directories.Contains(new FilesToMove(dialog.SelectedPath)))
+				if (result == System.Windows.Forms.DialogResult.OK && dialog.SelectedPath.Length > 0)
 				{
+					FilesToMove dir = new FilesToMove(dialog.SelectedPath);
 					//If we get a valid directory to drop things in, we need to create a new directory, 
 					//as well as a list to hold what files go to that directory
-					directories.Add(new FilesToMove(dialog.SelectedPath));
-					RefreshListViews();
+					try
+					{
+						if (!directories.Contains(dir))
+						{
+							directories.Add(dir);
+							directories.Sort();
+							listViewDirectories.SelectedIndex = directories.IndexOf(dir);
+							RefreshListViews();
+							//TODO: probably should set the selected directory to the one JUST added
+						}
+					}
+					catch (ArgumentNullException nulle)
+					{ 
+						//Some weird thing keeps happening where our program keeps trying to call equals on a null FilesToMove, idk what's causing it yet
+					}
 				}
 
 			}
@@ -249,7 +263,7 @@ namespace SoupMover
 
 			}
 		}
-
+		//TODO: In both MoveToX, we need to reset our preview
 		private void MoveToDestination(object sender, RoutedEventArgs e)
 		{
 			if (listViewSourceFiles.SelectedItems != null && listViewDirectories.SelectedItem != null)
@@ -263,6 +277,7 @@ namespace SoupMover
 				}
 				listViewDestination.ItemsSource = directories[listViewDirectories.SelectedIndex].GetFiles();
 				RefreshListViews();
+				HidePreview();
 			}
 		}
 
@@ -277,6 +292,7 @@ namespace SoupMover
 					intTotalFiles--;
 					UpdateProgress();
 				}
+				HidePreview();
 				RefreshListViews();
 			}
 		}
@@ -492,7 +508,7 @@ namespace SoupMover
 		private void PreviewHandler(string file)
 		{
 			Uri uri = new Uri(file);
-			if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("image"))
+			if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("image")) //TODO: GIFs don't work properly
 			{
 				HidePreview();
 				imgPreview.Visibility = Visibility.Visible;
