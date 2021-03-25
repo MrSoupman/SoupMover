@@ -33,6 +33,7 @@ namespace SoupMover
 		LibVLC lib;
 		LibVLCSharp.Shared.MediaPlayer media;
 
+		//TODO:Context menu for all listviews, Recursive add directory, Check for move/changes made before exiting, search bars for all list views
 		private void Debug(object sender, RoutedEventArgs e)
 		{
 			
@@ -78,10 +79,12 @@ namespace SoupMover
 
 		private void Load(object sender, RoutedEventArgs e)
 		{
-			OpenFileDialog open = new OpenFileDialog();
-			open.Multiselect = false;
-			open.Filter = "JSON file (*.json)|*.json";
-			if (open.ShowDialog() == true)
+            OpenFileDialog open = new OpenFileDialog
+            {
+                Multiselect = false,
+                Filter = "JSON file (*.json)|*.json"
+            };
+            if (open.ShowDialog() == true)
 			{
 				Reset();
 				using (StreamReader reader = File.OpenText(open.FileName))
@@ -146,11 +149,6 @@ namespace SoupMover
 			}
 		}
 
-		private void SaveJ(object sender, RoutedEventArgs e)
-		{
-			
-		}
-
 		private void Exit(object sender, RoutedEventArgs e)
 		{
 			MessageBoxResult result = MessageBox.Show("Are you sure you want to exit?", "Exit",
@@ -203,7 +201,26 @@ namespace SoupMover
 				foreach (string file in listViewSourceFiles.SelectedItems)
 					listSourceFiles.Remove(file);
 				RefreshListViews();
+				HidePreview();
 			}    
+		}
+
+		/// <summary>
+		/// Private helper method to add a directory
+		/// </summary>
+		/// <param name="dir"></param>
+		private bool AddDirectory(string directory)
+		{
+			FilesToMove dir = new FilesToMove(directory);
+			//If we get a valid directory to drop things in, we need to create a new directory, 
+			//as well as a list to hold what files go to that directory
+			if (!directories.Contains(dir))
+			{
+				directories.Add(dir);
+				directories.Sort();
+				return true;
+			}
+			return false;
 		}
 
 		private void AddDirectories(object sender, RoutedEventArgs e)
@@ -213,26 +230,53 @@ namespace SoupMover
 				System.Windows.Forms.DialogResult result = dialog.ShowDialog(); //WPF .netcore appearently doesn't have a built in directory browser????? for like 7 years now??? ok
 				if (result == System.Windows.Forms.DialogResult.OK && dialog.SelectedPath.Length > 0)
 				{
-					FilesToMove dir = new FilesToMove(dialog.SelectedPath);
-					//If we get a valid directory to drop things in, we need to create a new directory, 
-					//as well as a list to hold what files go to that directory
-					try
+					if (AddDirectory(dialog.SelectedPath))
 					{
-						if (!directories.Contains(dir))
-						{
-							directories.Add(dir);
-							directories.Sort();
-							listViewDirectories.SelectedIndex = directories.IndexOf(dir);
-							RefreshListViews();
-							//TODO: probably should set the selected directory to the one JUST added
-						}
-					}
-					catch (ArgumentNullException nulle)
-					{ 
-						//Some weird thing keeps happening where our program keeps trying to call equals on a null FilesToMove, idk what's causing it yet
+						listViewDirectories.SelectedIndex = directories.IndexOf(new FilesToMove(dialog.SelectedPath));
+						RefreshListViews();
 					}
 				}
 
+			}
+		}
+		/// <summary>
+		/// Private helper method to recursively add directories
+		/// </summary>
+		/// <param name="directory"></param>
+		private void RecursiveEnum(string directory)
+		{
+			try
+			{
+				List<string> dirs = new List<string>(Directory.EnumerateDirectories(directory));
+				if (dirs.Count == 0)
+					return;
+				foreach (var dir in dirs)
+				{
+					AddDirectory(dir.ToString());
+					RecursiveEnum(dir.ToString());
+				}
+			}
+			catch (UnauthorizedAccessException e)
+			{
+				MessageBox.Show("Cannot access directory within " + directory, "Error Accessing Folder", MessageBoxButton.OK, MessageBoxImage.Error);
+				return;
+			}
+			catch (PathTooLongException e)
+			{
+				MessageBox.Show("Path character limit exceeded, exiting...", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+				return;
+			}
+		}
+		private void AddDirectoriesRecursively(object sender, RoutedEventArgs e)
+		{
+			using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+			{
+				System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+				if (result == System.Windows.Forms.DialogResult.OK)
+				{
+					RecursiveEnum(dialog.SelectedPath);
+					RefreshListViews();
+				}
 			}
 		}
 
@@ -458,7 +502,7 @@ namespace SoupMover
 					string destination = directories[i].GetDirectory() + "\\" + Path.GetFileName(directories[i].GetFile(j)); //The destination folder
 					if (File.Exists(file) && !File.Exists(destination)) //to be ABSOLUTELY CERTAIN, once we get to this file it exists in the source directory and not in the destination folder as well
 					{
-						try
+						try //todo: need to check if we can access file
 						{
 							File.Move(file, destination);
 							removedFiles.Add(file);
@@ -508,6 +552,7 @@ namespace SoupMover
 		private void PreviewHandler(string file)
 		{
 			Uri uri = new Uri(file);
+			//TODO: Need to add check to see if file exists...
 			if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("image")) //TODO: GIFs don't work properly
 			{
 				HidePreview();
