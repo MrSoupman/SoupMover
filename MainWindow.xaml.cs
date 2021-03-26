@@ -304,7 +304,7 @@ namespace SoupMover
 						RefreshListViews();
 					}
 				}
-
+				TextDirLbl.Text = "(No directory selected)";
 			}
 		}
 		//TODO: In both MoveToX, we need to reset our preview
@@ -348,6 +348,7 @@ namespace SoupMover
 				FilesToMove ftm = new FilesToMove(e.AddedItems[0].ToString());
 				int index = directories.IndexOf(ftm);
 				listViewDestination.ItemsSource = directories[index].GetFiles();
+				TextDirLbl.Text = directories[index].GetDirectory();
 				RefreshListViews();
 			}
 			
