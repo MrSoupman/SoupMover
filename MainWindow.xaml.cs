@@ -341,19 +341,6 @@ namespace SoupMover
 			}
 		}
 
-		private void listViewDirectories_SelectionChanged(object sender, SelectionChangedEventArgs e)
-		{
-			if(e.AddedItems.Count > 0)
-			{
-				FilesToMove ftm = new FilesToMove(e.AddedItems[0].ToString());
-				int index = directories.IndexOf(ftm);
-				listViewDestination.ItemsSource = directories[index].GetFiles();
-				TextDirLbl.Text = directories[index].GetDirectory();
-				RefreshListViews();
-			}
-			
-		}
-
 		private void MoveHandler(object sender, RoutedEventArgs e)
 		{
 			if (directories.Count == 0) //TODO: Refactor so any and all GUI calls are handled elsewhere
@@ -552,44 +539,49 @@ namespace SoupMover
 
 		private void PreviewHandler(string file)
 		{
-			Uri uri = new Uri(file);
-			//TODO: Need to add check to see if file exists...
-			if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("image")) //TODO: GIFs don't work properly
+			
+			if (File.Exists(file))
 			{
-				HidePreview();
-				imgPreview.Visibility = Visibility.Visible;
-				imgPreview.Source = new BitmapImage(uri);
-			}
-			else if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("video") || MimeTypeMap.GetMimeType(uri.ToString()).Contains("audio"))
-			{
-				HidePreview();
-				previewGrid.Visibility = Visibility.Visible;
-				previewGrid.BringIntoView();
-				time.Start();
-				media.Play(new Media(lib, uri));
-				media.Volume = 100;
-
-			}
-			else if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("text"))
-			{
-				HidePreview();
-				try
+				Uri uri = new Uri(file);
+				if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("image")) //TODO: GIFs don't work properly
 				{
-					string contents = File.ReadAllText(file);
-					txtPreviewScroller.Visibility = Visibility.Visible;
-					txtPreview.Visibility = Visibility.Visible;
-					txtPreview.Text = contents;
+					HidePreview();
+					imgPreview.Visibility = Visibility.Visible;
+					imgPreview.Source = new BitmapImage(uri);
 				}
-				catch (Exception exc)
+				else if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("video") || MimeTypeMap.GetMimeType(uri.ToString()).Contains("audio"))
 				{
+					HidePreview();
+					previewGrid.Visibility = Visibility.Visible;
+					previewGrid.BringIntoView();
+					time.Start();
+					media.Play(new Media(lib, uri));
+					media.Volume = 100;
+
+				}
+				else if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("text"))
+				{
+					HidePreview();
+					try
+					{
+						string contents = File.ReadAllText(file);
+						txtPreviewScroller.Visibility = Visibility.Visible;
+						txtPreview.Visibility = Visibility.Visible;
+						txtPreview.Text = contents;
+					}
+					catch (Exception exc)
+					{
+						nullPreview.Visibility = Visibility.Visible;
+					}
+				}
+				else
+				{
+					HidePreview();
 					nullPreview.Visibility = Visibility.Visible;
 				}
 			}
-			else
-			{
-				HidePreview();
-				nullPreview.Visibility = Visibility.Visible;
-			}
+			
+			
 		}
 
 
@@ -669,6 +661,18 @@ namespace SoupMover
 			media = new LibVLCSharp.Shared.MediaPlayer(lib);
 			vidPreview.MediaPlayer = media;
 			
+		}
+
+		private void listViewDirectories_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+		{
+			int index = listViewDirectories.SelectedIndex;
+			if (index != -1)
+            {
+				listViewDestination.ItemsSource = directories[index].GetFiles();
+				TextDirLbl.Text = directories[index].GetDirectory();
+				RefreshListViews();
+			}
+				
 		}
 
         public MainWindow()

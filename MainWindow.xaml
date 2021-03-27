@@ -11,6 +11,7 @@
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File">
                 <MenuItem Header="_Add Folders Recursively" Click="AddDirectoriesRecursively"/>
+                <Separator/>
                 <MenuItem Header="_Load" Click="Load"/>
                 <MenuItem Header="_Save" Click="Save"/>
                 <Separator/>
@@ -115,7 +116,7 @@
                     <DockPanel>
                         <TextBlock DockPanel.Dock="Top">Selected Directory:</TextBlock>
                         <TextBlock DockPanel.Dock="Top" TextWrapping="WrapWithOverflow" Name="TextDirLbl">(No directory selected)</TextBlock>
-                        <ListView DockPanel.Dock="Bottom" Name="listViewDirectories" SelectionMode="Single" SelectionChanged="listViewDirectories_SelectionChanged"/>
+                        <ListView DockPanel.Dock="Bottom" Name="listViewDirectories" SelectionMode="Single" MouseUp="listViewDirectories_MouseUp"/>
                     </DockPanel>
                     
                 </GroupBox>
