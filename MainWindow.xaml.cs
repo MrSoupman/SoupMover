@@ -232,8 +232,10 @@ namespace SoupMover
 				{
 					if (AddDirectory(dialog.SelectedPath))
 					{
-						listViewDirectories.SelectedIndex = directories.IndexOf(new FilesToMove(dialog.SelectedPath));
+						int index = directories.IndexOf(new FilesToMove(dialog.SelectedPath));
+						listViewDirectories.SelectedIndex = index;
 						TextDirLbl.Text = dialog.SelectedPath;
+						listViewDestination.ItemsSource = directories[index].GetFiles();
 						RefreshListViews();
 					}
 				}
