@@ -69,7 +69,7 @@ namespace SoupMover
 				pb.Value = 0;
 		}
 
-		private void RefreshListViews() //TODO: Replace List with ObservableList, and remove this method
+		private void RefreshListViews() 
 		{
 			//refreshes all list views so it reflects any changes made to lists
 			listViewSourceFiles.Items.Refresh();
@@ -174,6 +174,7 @@ namespace SoupMover
 			intCurrentFile = 0;
 			intTotalFiles = 0;
 			UpdateProgress();
+			TextDirLbl.Text = "(No directory selected)";
 		}
 
 		private void ResetHandler(object sender, RoutedEventArgs e)
@@ -196,13 +197,24 @@ namespace SoupMover
 
 		private void RemoveFiles(object sender, RoutedEventArgs e)
 		{
-			if (listViewSourceFiles.SelectedItems != null)
+			if (listViewSourceFiles.SelectedItems != null && listViewSourceFiles.SelectedIndex != -1)
 			{
 				foreach (string file in listViewSourceFiles.SelectedItems)
 					listSourceFiles.Remove(file);
 				RefreshListViews();
 				HidePreview();
-			}    
+			}
+			else if (listViewDestination.SelectedItems != null && listViewDestination.SelectedIndex != -1)
+			{
+				int DirIndex = listViewDirectories.SelectedIndex;
+				foreach (string file in listViewDestination.SelectedItems)
+				{ 
+					directories[DirIndex].Remove(file);
+					intTotalFiles--;
+				}
+				RefreshListViews();
+				HidePreview();
+			}
 		}
 
 		/// <summary>
