@@ -431,6 +431,8 @@ namespace SoupMover
 			}
 			
 			DisableButtons();
+			HidePreview();
+			imgPreview.Source = null;
 			worker.RunWorkerAsync(intTotalFiles);
 		}
 
