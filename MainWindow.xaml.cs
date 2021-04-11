@@ -175,6 +175,7 @@ namespace SoupMover
 			intTotalFiles = 0;
 			UpdateProgress();
 			TextDirLbl.Text = "(No directory selected)";
+			HidePreview();
 		}
 
 		private void ResetHandler(object sender, RoutedEventArgs e)
@@ -246,8 +247,8 @@ namespace SoupMover
 					{
 						int index = directories.IndexOf(new FilesToMove(dialog.SelectedPath));
 						listViewDirectories.SelectedIndex = index;
-						TextDirLbl.Text = dialog.SelectedPath;
 						listViewDestination.ItemsSource = directories[index].GetFiles();
+						TextDirLbl.Text = directories[index].GetDirectory();
 						RefreshListViews();
 					}
 				}
@@ -485,7 +486,7 @@ namespace SoupMover
 			}
 			else
 				MessageBox.Show("Cancelled moving remaining files.", "Cancelled", MessageBoxButton.OK, MessageBoxImage.Information);
-
+			intTotalFiles = 0; //if user wants to add more files after moving the first batch, this resets the total count
 			EnableButtons();
 		}
 
@@ -564,7 +565,13 @@ namespace SoupMover
 				{
 					HidePreview();
 					imgPreview.Visibility = Visibility.Visible;
-					imgPreview.Source = new BitmapImage(uri);
+					BitmapImage image = new BitmapImage();
+					image.BeginInit();
+					image.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+					image.CacheOption = BitmapCacheOption.OnLoad;
+					image.UriSource = uri;
+					image.EndInit();
+					imgPreview.Source = image;
 				}
 				else if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("video") || MimeTypeMap.GetMimeType(uri.ToString()).Contains("audio"))
 				{
