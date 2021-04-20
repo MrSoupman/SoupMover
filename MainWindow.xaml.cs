@@ -32,8 +32,9 @@ namespace SoupMover
 		DispatcherTimer time = new DispatcherTimer();
 		LibVLC lib;
 		LibVLCSharp.Shared.MediaPlayer media;
+		string SaveLocation = "";
 
-		//TODO:Context menu for all listviews, Recursive add directory, Check for move/changes made before exiting, search bars for all list views
+		//TODO:Context menu for all listviews, Check for move/changes made before exiting, search bars for all list views
 		private void Debug(object sender, RoutedEventArgs e)
 		{
 			
@@ -77,13 +78,15 @@ namespace SoupMover
 			listViewDestination.Items.Refresh();
 		}
 
-		private void Load(object sender, RoutedEventArgs e)
+		private void Load(object sender, RoutedEventArgs e) //TODO: Check for valid json file (I.E does it fit the format we have)
 		{
             OpenFileDialog open = new OpenFileDialog
             {
                 Multiselect = false,
                 Filter = "JSON file (*.json)|*.json"
             };
+			if (SaveLocation != "")
+				open.InitialDirectory = SaveLocation;
             if (open.ShowDialog() == true)
 			{
 				Reset();
@@ -108,6 +111,7 @@ namespace SoupMover
 						directories.Add(dir);
 					}
 				}
+				SaveLocation = Directory.GetParent(open.FileName).ToString();
 				UpdateProgress();
 				RefreshListViews();
 			}
@@ -117,6 +121,8 @@ namespace SoupMover
 		{
 			SaveFileDialog save = new SaveFileDialog();
 			save.Filter = "json file (*.json)|*.json";
+			if (SaveLocation != "")
+				save.InitialDirectory = SaveLocation;
 			if (save.ShowDialog() == true)
 			{
 				StringBuilder sb = new StringBuilder();
@@ -146,6 +152,7 @@ namespace SoupMover
 					}
 					File.WriteAllText(save.FileName, sw.ToString());
 				}
+				SaveLocation = Directory.GetParent(save.FileName).ToString();
 			}
 		}
 
