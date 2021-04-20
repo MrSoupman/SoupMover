@@ -554,6 +554,7 @@ namespace SoupMover
 		private void HidePreview() 
 		{
 			imgPreview.Visibility = Visibility.Collapsed;
+			gifPreview.Visibility = Visibility.Collapsed;
 			previewGrid.Visibility = Visibility.Hidden;
 			media.Stop();
 			txtPreview.Visibility = Visibility.Collapsed;
