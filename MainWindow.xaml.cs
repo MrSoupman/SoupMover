@@ -17,6 +17,7 @@ using MimeTypes;
 using LibVLCSharp.Shared;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using WpfAnimatedGif;
 
 namespace SoupMover
 {
@@ -168,7 +169,7 @@ namespace SoupMover
 		private void About(object sender, RoutedEventArgs e)
 		{
 			MessageBox.Show("Soup Mover V0.8\nSoup Mover is a program for moving files to various folders. " +
-				"Made by MrSoupman.\n Thanks to samuelneff for MimeTypeMap, Mono Company for their icons, and VLC for LibVLCSharp!", "About", MessageBoxButton.OK, MessageBoxImage.Information);
+				"Made by MrSoupman.\n Thanks to samuelneff for MimeTypeMap, Mono Company for their icons, Thomas Levesque for WpfAnimatedGif, and VLC for LibVLCSharp!", "About", MessageBoxButton.OK, MessageBoxImage.Information);
 		}
 
 		private void Reset()
@@ -568,17 +569,26 @@ namespace SoupMover
 			if (File.Exists(file))
 			{
 				Uri uri = new Uri(file);
-				if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("image")) //TODO: GIFs don't work properly
+				if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("image"))
 				{
 					HidePreview();
-					imgPreview.Visibility = Visibility.Visible;
 					BitmapImage image = new BitmapImage();
 					image.BeginInit();
 					image.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
 					image.CacheOption = BitmapCacheOption.OnLoad;
 					image.UriSource = uri;
 					image.EndInit();
-					imgPreview.Source = image;
+					if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("gif"))
+					{
+						gifPreview.Visibility = Visibility.Visible;
+						ImageBehavior.SetAnimatedSource(gifPreview, image);
+					}
+					else
+					{
+						imgPreview.Visibility = Visibility.Visible;
+						imgPreview.Source = image;
+					}
+					
 				}
 				else if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("video") || MimeTypeMap.GetMimeType(uri.ToString()).Contains("audio"))
 				{

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
+        xmlns:gif="http://wpfanimatedgif.codeplex.com"
         xmlns:local="clr-namespace:SoupMover"
         mc:Ignorable="d"
         Title="Soup Mover" Height="500" Width="675">
@@ -83,6 +84,7 @@
             <GroupBox Header="File Preview" Margin="5" Grid.Row="3">
                     <Grid>
                         <Image Name="imgPreview" Visibility="Collapsed"/>
+                        <Image Name ="gifPreview" Visibility="Collapsed" gif:ImageBehavior.RepeatBehavior="0x"/>
                         <Grid Name="previewGrid" Visibility="Hidden">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
