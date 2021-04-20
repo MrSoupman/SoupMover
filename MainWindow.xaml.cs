@@ -183,6 +183,7 @@ namespace SoupMover
 			intTotalFiles = 0;
 			UpdateProgress();
 			TextDirLbl.Text = "(No directory selected)";
+			SearchBox.Text = "Search...";
 			HidePreview();
 		}
 
@@ -206,16 +207,16 @@ namespace SoupMover
 
 		private void RemoveFiles(object sender, RoutedEventArgs e)
 		{
-			if (listViewSourceFiles.SelectedItems != null && listViewSourceFiles.SelectedIndex != -1)
+			if (listViewSourceFiles.SelectedItems != null && listViewSourceFiles.SelectedIndex != -1) //remove from source files list
 			{
 				foreach (string file in listViewSourceFiles.SelectedItems)
 					listSourceFiles.Remove(file);
 				RefreshListViews();
 				HidePreview();
 			}
-			else if (listViewDestination.SelectedItems != null && listViewDestination.SelectedIndex != -1)
+			else if (listViewDestination.SelectedItems != null && listViewDestination.SelectedIndex != -1) //remove from destination list
 			{
-				int DirIndex = listViewDirectories.SelectedIndex;
+				int DirIndex = directories.IndexOf(new FilesToMove(listViewDirectories.SelectedIndex.ToString()));
 				foreach (string file in listViewDestination.SelectedItems)
 				{ 
 					directories[DirIndex].Remove(file);
@@ -253,6 +254,7 @@ namespace SoupMover
 				{
 					if (AddDirectory(dialog.SelectedPath))
 					{
+						SearchBox.Text = "Search..."; //not sure if i should keep it this way, but we reset search prior to adding the directory, just in case.
 						int index = directories.IndexOf(new FilesToMove(dialog.SelectedPath));
 						listViewDirectories.SelectedIndex = index;
 						listViewDestination.ItemsSource = directories[index].GetFiles();
@@ -336,14 +338,15 @@ namespace SoupMover
 		{
 			if (listViewSourceFiles.SelectedItems != null && listViewDirectories.SelectedItem != null)
 			{
+				int index = directories.IndexOf(new FilesToMove(listViewDirectories.SelectedItem.ToString()));
 				foreach (string file in listViewSourceFiles.SelectedItems)
 				{
-					directories[listViewDirectories.SelectedIndex].Add(file);
+					directories[index].Add(file);
 					listSourceFiles.Remove(file);
 					intTotalFiles++;
 					UpdateProgress();
 				}
-				listViewDestination.ItemsSource = directories[listViewDirectories.SelectedIndex].GetFiles();
+				listViewDestination.ItemsSource = directories[index].GetFiles();
 				RefreshListViews();
 				HidePreview();
 			}
@@ -353,10 +356,11 @@ namespace SoupMover
 		{
 			if (listViewDestination.SelectedItems != null && listViewDirectories.SelectedItem != null)
 			{
+				int index = directories.IndexOf(new FilesToMove(listViewDirectories.SelectedItem.ToString()));
 				foreach (string file in listViewDestination.SelectedItems)
 				{
 					listSourceFiles.Add(file);
-					directories[listViewDirectories.SelectedIndex].Remove(file);
+					directories[index].Remove(file);
 					intTotalFiles--;
 					UpdateProgress();
 				}
@@ -710,8 +714,10 @@ namespace SoupMover
 			int index = listViewDirectories.SelectedIndex;
 			if (index != -1)
             {
-				listViewDestination.ItemsSource = directories[index].GetFiles();
-				TextDirLbl.Text = directories[index].GetDirectory();
+				//TODO: May have to get the text of selected item, then search for it in directory instead due to searchbox
+				int dirIndex = directories.IndexOf(new FilesToMove(listViewDirectories.SelectedItem.ToString()));
+				listViewDestination.ItemsSource = directories[dirIndex].GetFiles();
+				TextDirLbl.Text = directories[dirIndex].GetDirectory();
 				RefreshListViews();
 			}
 				
