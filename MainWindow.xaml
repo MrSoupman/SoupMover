@@ -114,6 +114,7 @@
             <!--Pane 3 is for the list of directories that files can be moved to-->
                 <GroupBox Header="Directories" Grid.Column="1">
                     <DockPanel>
+                        <TextBox DockPanel.Dock="Top" Name ="SearchBox" TextChanged="SearchBox_TextChanged" GotFocus="SearchBox_GotFocus" LostFocus="SearchBox_LostFocus"></TextBox>
                         <TextBlock DockPanel.Dock="Top">Selected Directory:</TextBlock>
                         <TextBlock DockPanel.Dock="Top" TextWrapping="WrapWithOverflow" Name="TextDirLbl">(No directory selected)</TextBlock>
                         <ListView DockPanel.Dock="Bottom" Name="listViewDirectories" SelectionMode="Single" MouseUp="listViewDirectories_MouseUp"/>

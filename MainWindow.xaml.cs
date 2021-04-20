@@ -706,6 +706,37 @@ namespace SoupMover
 				
 		}
 
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+			if (SearchBox.Text != "Search..." && SearchBox.Text != "")
+			{
+				List<FilesToMove> temp = new List<FilesToMove>();
+				foreach (var item in directories)
+					if (item.GetDirectory().ToLower().Contains(SearchBox.Text))
+						temp.Add(item);
+				listViewDirectories.ItemsSource = temp;
+			}
+			else
+				listViewDirectories.ItemsSource = directories;
+			//Since we're changing the listview of directories, we don't want the user to think a directory is still selected
+			listViewDirectories.SelectedIndex = -1;
+			TextDirLbl.Text = "(No directory selected)";
+			RefreshListViews();
+		}
+
+        private void SearchBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+			if (SearchBox.Text == "Search...")
+				SearchBox.Text = "";
+        }
+
+        private void SearchBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+			if (SearchBox.Text == "")
+				SearchBox.Text = "Search...";
+		}
+
         public MainWindow()
 		{
 			worker.WorkerSupportsCancellation = true;
@@ -716,6 +747,7 @@ namespace SoupMover
 			InitializeComponent();
 			listViewSourceFiles.ItemsSource = listSourceFiles; //binds List source files to the list view
 			listViewDirectories.ItemsSource = directories;
+			SearchBox.Text = "Search...";
 			time.Interval = TimeSpan.FromSeconds(1);
             time.Tick += Time_Tick;
 			vidPreview.Loaded += vidPreview_Loaded;
