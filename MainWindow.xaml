@@ -50,8 +50,23 @@
                 </StackPanel>
                 
                 <GroupBox Header="Source Files" Grid.Column="1">
-                        <ListView Name="listViewSourceFiles" SelectionChanged="listViewSourceFiles_SelectionChanged" />
-                </GroupBox>
+                        <ListView Name="listViewSourceFiles" SelectionChanged="listViewSourceFiles_SelectionChanged">
+                            <ListView.Resources>
+                                <ContextMenu x:Key="SourceContextMenu">
+                                    <MenuItem Header="Open File"/>
+                                    <MenuItem Header="Open in Explorer"/>
+                                    <Separator/>
+                                    <MenuItem Header="Remove File"/>
+                                    <MenuItem Header="Delete File From Disk"/>
+                                </ContextMenu>
+                            </ListView.Resources>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListViewItem}">
+                                    <Setter Property="ContextMenu" Value="{StaticResource SourceContextMenu}"/>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                        </ListView>
+                    </GroupBox>
 
                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
                         <Button Name="btnMoveTo" Margin="5 5 5 20" Content="-&gt;" Click="MoveToDestination"/>
