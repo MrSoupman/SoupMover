@@ -35,7 +35,7 @@ namespace SoupMover
 		LibVLCSharp.Shared.MediaPlayer media;
 		string SaveLocation = "";
 
-		//TODO:Context menu for all listviews, Check for move/changes made before exiting, search bars for all list views
+		//TODO:Context menu for all listviews, Check for move/changes made before exiting, search bars for all list views, move all non gui related methods to its own cs file, for ontextchange in directory search, we should set destination listview to null
 		private void Debug(object sender, RoutedEventArgs e)
 		{
 			
@@ -333,7 +333,7 @@ namespace SoupMover
 				TextDirLbl.Text = "(No directory selected)";
 			}
 		}
-		//TODO: In both MoveToX, we need to reset our preview
+		
 		private void MoveToDestination(object sender, RoutedEventArgs e)
 		{
 			if (listViewSourceFiles.SelectedItems != null && listViewDirectories.SelectedItem != null)
@@ -730,7 +730,7 @@ namespace SoupMover
 			{
 				List<FilesToMove> temp = new List<FilesToMove>();
 				foreach (var item in directories)
-					if (item.GetDirectory().ToLower().Contains(SearchBox.Text))
+					if (item.GetDirectory().ToLower().Contains(SearchBox.Text.ToLower()))
 						temp.Add(item);
 				listViewDirectories.ItemsSource = temp;
 			}
