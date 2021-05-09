@@ -223,7 +223,7 @@ namespace SoupMover
 			}
 			else if (listViewDestination.SelectedItems != null && listViewDestination.SelectedIndex != -1) //remove from destination list
 			{
-				int DirIndex = directories.IndexOf(new FilesToMove(listViewDirectories.SelectedIndex.ToString()));
+				int DirIndex = directories.IndexOf(new FilesToMove(listViewDirectories.SelectedItem.ToString()));
 				foreach (string file in listViewDestination.SelectedItems)
 				{ 
 					directories[DirIndex].Remove(file);
@@ -232,6 +232,7 @@ namespace SoupMover
 				RefreshListViews();
 				HidePreview();
 			}
+			UpdateProgress();
 		}
 
 		/// <summary>
