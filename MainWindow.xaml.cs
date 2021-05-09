@@ -192,6 +192,13 @@ namespace SoupMover
 			Reset();
 		}
 
+		private void AddFile(string file)
+		{
+			if (File.Exists(file))
+				listSourceFiles.Add(file);
+
+		}
+
 		private void AddFiles(object sender, RoutedEventArgs e)
 		{
 			OpenFileDialog open = new OpenFileDialog();
@@ -199,7 +206,7 @@ namespace SoupMover
 			if (open.ShowDialog() == true)
 			{
 				foreach (string filename in open.FileNames)
-					listSourceFiles.Add(filename);
+					AddFile(filename);
 				RefreshListViews();
 			}
 			
@@ -301,6 +308,49 @@ namespace SoupMover
 				if (result == System.Windows.Forms.DialogResult.OK)
 				{
 					RecursiveEnum(dialog.SelectedPath);
+					RefreshListViews();
+				}
+			}
+		}
+
+		/// <summary>
+		/// Private helper method to recursively add files
+		/// </summary>
+		/// <param name="directory"></param>
+		private void RecursiveFiles(string directory)
+		{
+			try
+			{
+				List<string> dirs = new List<string>(Directory.EnumerateDirectories(directory));
+				List<string> files = new List<string>(Directory.EnumerateFiles(directory));
+				if (dirs.Count == 0 && files.Count == 0)
+					return;
+				foreach (string file in files)
+					AddFile(file);
+				foreach (var dir in dirs)
+				{
+					RecursiveFiles(dir.ToString());
+				}
+			}
+			catch (UnauthorizedAccessException e)
+			{
+				MessageBox.Show("Cannot access directory within " + directory, "Error Accessing Folder", MessageBoxButton.OK, MessageBoxImage.Error);
+				return;
+			}
+			catch (PathTooLongException e)
+			{
+				MessageBox.Show("Path character limit exceeded, exiting...", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+				return;
+			}
+		}
+		private void AddFilesRecursively(object sender, RoutedEventArgs e)
+		{
+			using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+			{
+				System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+				if (result == System.Windows.Forms.DialogResult.OK)
+				{
+					RecursiveFiles(dialog.SelectedPath);
 					RefreshListViews();
 				}
 			}
