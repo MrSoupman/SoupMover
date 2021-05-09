@@ -194,7 +194,7 @@ namespace SoupMover
 
 		private void AddFile(string file)
 		{
-			if (File.Exists(file))
+			if (File.Exists(file) && !listSourceFiles.Contains(file))
 				listSourceFiles.Add(file);
 
 		}
