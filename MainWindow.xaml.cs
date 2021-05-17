@@ -13,7 +13,6 @@ using System.Threading;
 using System.Windows.Threading;
 using Path = System.IO.Path;
 using MimeTypes;
-//using LibVLCSharp.WPF;
 using LibVLCSharp.Shared;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -26,9 +25,10 @@ namespace SoupMover
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		List<string> listSourceFiles = new List<string>(); //list to store all source files
-		List<FilesToMove> directories = new List<FilesToMove>(); //list to store all files to move
-		int intCurrentFile = 0,intTotalFiles = 0; //current file tracks which file is being moved, total tracks all files
+		Data db = new Data();
+		//List<string> listSourceFiles = new List<string>(); //list to store all source files
+		//List<FilesToMove> directories = new List<FilesToMove>(); //list to store all files to move
+		//int intCurrentFile = 0,intTotalFiles = 0; //current file tracks which file is being moved, total tracks all files
 		BackgroundWorker worker = new BackgroundWorker();
 		DispatcherTimer time = new DispatcherTimer();
 		LibVLC lib;
@@ -64,9 +64,9 @@ namespace SoupMover
 		}
 		private void UpdateProgress()
 		{
-			txtProg.Text = (intCurrentFile + "/" + intTotalFiles);
-			if (intTotalFiles != 0) //edge case
-				pb.Value = Convert.ToInt32(((double)intCurrentFile / intTotalFiles) * 100.0);
+			txtProg.Text = (db.IntCurrentFile + "/" + db.IntTotalFiles);
+			if (db.IntCurrentFile != 0) //edge case
+				pb.Value = Convert.ToInt32(((double)db.IntCurrentFile / db.IntTotalFiles) * 100.0);
 			else
 				pb.Value = 0;
 		}
@@ -91,27 +91,7 @@ namespace SoupMover
             if (open.ShowDialog() == true)
 			{
 				Reset();
-				using (StreamReader reader = File.OpenText(open.FileName))
-				{
-					JObject jFile = (JObject)JToken.ReadFrom(new JsonTextReader(reader));
-					JArray sourceArray = JArray.Parse(jFile["SourceFiles"].ToString());
-					foreach (JToken token in sourceArray)
-						listSourceFiles.Add(token.ToString());
-					JObject dirObj = JObject.Parse(jFile["Directories"].ToString());
-					Console.WriteLine(dirObj.Count);
-					foreach (JContainer obj in dirObj.Children())
-					{
-						JProperty property = obj.ToObject<JProperty>();
-						FilesToMove dir = new FilesToMove(property.Name);
-						JArray filesArray = JArray.Parse(property.Value.ToString());
-						foreach (JToken token in filesArray)
-						{
-							dir.Add(token.ToString());
-							intTotalFiles++;
-						}
-						directories.Add(dir);
-					}
-				}
+				db.LoadJSon(open.FileName);
 				SaveLocation = Directory.GetParent(open.FileName).ToString();
 				UpdateProgress();
 				RefreshListViews();
@@ -126,33 +106,7 @@ namespace SoupMover
 				save.InitialDirectory = SaveLocation;
 			if (save.ShowDialog() == true)
 			{
-				StringBuilder sb = new StringBuilder();
-				using (StringWriter sw = new StringWriter(sb))
-				{
-					using (JsonWriter writer = new JsonTextWriter(sw))
-					{
-						//writer.Formatting = Newtonsoft.Json.Formatting.Indented;
-						writer.WriteStartObject();
-						writer.WritePropertyName("SourceFiles");
-						writer.WriteStartArray();
-						foreach (string file in listSourceFiles)
-							writer.WriteValue(file);
-						writer.WriteEndArray();
-						writer.WritePropertyName("Directories");
-						writer.WriteStartObject();
-						foreach (FilesToMove dirs in directories)
-						{
-							writer.WritePropertyName(dirs.GetDirectory());
-							writer.WriteStartArray();
-							foreach (string file in dirs.GetFiles())
-								writer.WriteValue(file);
-							writer.WriteEndArray();
-						}
-						writer.WriteEnd();
-						writer.WriteEnd();
-					}
-					File.WriteAllText(save.FileName, sw.ToString());
-				}
+				db.SaveJSon(save.FileName);
 				SaveLocation = Directory.GetParent(save.FileName).ToString();
 			}
 		}
@@ -174,29 +128,23 @@ namespace SoupMover
 
 		private void Reset()
 		{
-			listSourceFiles.Clear();
-			directories.Clear();
+			//GUI
 			RefreshListViews();
 			listViewDestination.ItemsSource = null;
 			pb.Value = 0;
-			intCurrentFile = 0;
-			intTotalFiles = 0;
 			UpdateProgress();
 			TextDirLbl.Text = "(No directory selected)";
 			SearchBox.Text = "Search...";
 			HidePreview();
+
+			//DB
+			db.ResetDB();
+
 		}
 
 		private void ResetHandler(object sender, RoutedEventArgs e)
 		{
 			Reset();
-		}
-
-		private void AddFile(string file)
-		{
-			if (File.Exists(file) && !listSourceFiles.Contains(file))
-				listSourceFiles.Add(file);
-
 		}
 
 		private void AddFiles(object sender, RoutedEventArgs e)
@@ -206,7 +154,7 @@ namespace SoupMover
 			if (open.ShowDialog() == true)
 			{
 				foreach (string filename in open.FileNames)
-					AddFile(filename);
+					db.AddFileToSource(filename);
 				RefreshListViews();
 			}
 			
@@ -217,41 +165,20 @@ namespace SoupMover
 			if (listViewSourceFiles.SelectedItems != null && listViewSourceFiles.SelectedIndex != -1) //remove from source files list
 			{
 				foreach (string file in listViewSourceFiles.SelectedItems)
-					listSourceFiles.Remove(file);
+					db.RemoveFileFromSource(file);
 				RefreshListViews();
 				HidePreview();
 			}
 			else if (listViewDestination.SelectedItems != null && listViewDestination.SelectedIndex != -1) //remove from destination list
 			{
-				int DirIndex = directories.IndexOf(new FilesToMove(listViewDirectories.SelectedItem.ToString()));
 				foreach (string file in listViewDestination.SelectedItems)
-				{ 
-					directories[DirIndex].Remove(file);
-					intTotalFiles--;
-				}
+					db.RemoveFileFromDestination(file, listViewDirectories.SelectedItem.ToString());
 				RefreshListViews();
 				HidePreview();
 			}
 			UpdateProgress();
 		}
 
-		/// <summary>
-		/// Private helper method to add a directory
-		/// </summary>
-		/// <param name="dir"></param>
-		private bool AddDirectory(string directory)
-		{
-			FilesToMove dir = new FilesToMove(directory);
-			//If we get a valid directory to drop things in, we need to create a new directory, 
-			//as well as a list to hold what files go to that directory
-			if (!directories.Contains(dir))
-			{
-				directories.Add(dir);
-				directories.Sort();
-				return true;
-			}
-			return false;
-		}
 
 		private void AddDirectories(object sender, RoutedEventArgs e)
 		{
@@ -260,47 +187,20 @@ namespace SoupMover
 				System.Windows.Forms.DialogResult result = dialog.ShowDialog(); //WPF .netcore appearently doesn't have a built in directory browser????? for like 7 years now??? ok
 				if (result == System.Windows.Forms.DialogResult.OK && dialog.SelectedPath.Length > 0)
 				{
-					if (AddDirectory(dialog.SelectedPath))
+					if (db.AddDirectory(dialog.SelectedPath))
 					{
 						SearchBox.Text = "Search..."; //not sure if i should keep it this way, but we reset search prior to adding the directory, just in case.
-						int index = directories.IndexOf(new FilesToMove(dialog.SelectedPath));
+						int index = db.GetIndexOfDirectory(dialog.SelectedPath);
 						listViewDirectories.SelectedIndex = index;
-						listViewDestination.ItemsSource = directories[index].GetFiles();
-						TextDirLbl.Text = directories[index].GetDirectory();
+						listViewDestination.ItemsSource = db.GetFilesFromDirectory(dialog.SelectedPath);
+						TextDirLbl.Text = db.GetDirInfo(index).GetDirectory(); //This is pretty ugly, may refactor later
 						RefreshListViews();
 					}
 				}
 
 			}
 		}
-		/// <summary>
-		/// Private helper method to recursively add directories
-		/// </summary>
-		/// <param name="directory"></param>
-		private void RecursiveEnum(string directory)
-		{
-			try
-			{
-				List<string> dirs = new List<string>(Directory.EnumerateDirectories(directory));
-				if (dirs.Count == 0)
-					return;
-				foreach (var dir in dirs)
-				{
-					AddDirectory(dir.ToString());
-					RecursiveEnum(dir.ToString());
-				}
-			}
-			catch (UnauthorizedAccessException e)
-			{
-				MessageBox.Show("Cannot access directory within " + directory, "Error Accessing Folder", MessageBoxButton.OK, MessageBoxImage.Error);
-				return;
-			}
-			catch (PathTooLongException e)
-			{
-				MessageBox.Show("Path character limit exceeded, exiting...", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-				return;
-			}
-		}
+		
 		private void AddDirectoriesRecursively(object sender, RoutedEventArgs e)
 		{
 			using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
@@ -308,42 +208,27 @@ namespace SoupMover
 				System.Windows.Forms.DialogResult result = dialog.ShowDialog();
 				if (result == System.Windows.Forms.DialogResult.OK)
 				{
-					RecursiveEnum(dialog.SelectedPath);
+					//RecursiveEnum(dialog.SelectedPath);
+					try 
+					{
+						db.RecursiveDir(dialog.SelectedPath);
+					}
+					catch (UnauthorizedAccessException exc)
+					{
+						MessageBox.Show("Cannot access directory. The following is a message on why: \n" + exc.Message, "Error Accessing Folder", MessageBoxButton.OK, MessageBoxImage.Error);
+						return;
+					}
+					catch (PathTooLongException exc)
+					{
+						MessageBox.Show("Path character limit exceeded, exiting...", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+						return;
+					}
 					RefreshListViews();
 				}
 			}
 		}
 
-		/// <summary>
-		/// Private helper method to recursively add files
-		/// </summary>
-		/// <param name="directory"></param>
-		private void RecursiveFiles(string directory)
-		{
-			try
-			{
-				List<string> dirs = new List<string>(Directory.EnumerateDirectories(directory));
-				List<string> files = new List<string>(Directory.EnumerateFiles(directory));
-				if (dirs.Count == 0 && files.Count == 0)
-					return;
-				foreach (string file in files)
-					AddFile(file);
-				foreach (var dir in dirs)
-				{
-					RecursiveFiles(dir.ToString());
-				}
-			}
-			catch (UnauthorizedAccessException e)
-			{
-				MessageBox.Show("Cannot access directory within " + directory, "Error Accessing Folder", MessageBoxButton.OK, MessageBoxImage.Error);
-				return;
-			}
-			catch (PathTooLongException e)
-			{
-				MessageBox.Show("Path character limit exceeded, exiting...", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-				return;
-			}
-		}
+
 		private void AddFilesRecursively(object sender, RoutedEventArgs e)
 		{
 			using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
@@ -351,7 +236,7 @@ namespace SoupMover
 				System.Windows.Forms.DialogResult result = dialog.ShowDialog();
 				if (result == System.Windows.Forms.DialogResult.OK)
 				{
-					RecursiveFiles(dialog.SelectedPath);
+					db.RecursiveFiles(dialog.SelectedPath);
 					RefreshListViews();
 				}
 			}
@@ -361,10 +246,10 @@ namespace SoupMover
 		{
 			if (listViewDirectories.SelectedItem != null)
 			{
-				int index = listViewDirectories.SelectedIndex;
-				if (directories[index].IsEmpty()) //directory contains no items to be moved to it
+				int index = db.GetIndexOfDirectory(listViewDirectories.SelectedItem.ToString());
+				if (db.GetDirInfo(index).IsEmpty()) //directory contains no items to be moved to it
 				{
-					directories.RemoveAt(index);
+					db.RemoveDirectory(index);
 					RefreshListViews();
 				}
 				else
@@ -372,11 +257,9 @@ namespace SoupMover
 					MessageBoxResult result = MessageBox.Show("There are files to be moved to this destination. Do you still want to remove this directory? All files will be returned to the source files list.", "Remove Directory?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
 					if (result == MessageBoxResult.Yes)
 					{
-						foreach (string files in directories[index].GetFiles()) //need to add each file back into source list
-						{
-							listSourceFiles.Add(files);
-						}
-						directories.RemoveAt(index);
+						foreach (string files in db.GetDirInfo(index).GetFiles()) //need to add each file back into source list
+							db.AddFileToSource(files);
+						db.RemoveDirectory(index);
 						listViewDestination.ItemsSource = null; //Used to reset listViewDestination, clear is for when you add items directly to the LV
 						RefreshListViews();
 					}
@@ -389,15 +272,13 @@ namespace SoupMover
 		{
 			if (listViewSourceFiles.SelectedItems != null && listViewDirectories.SelectedItem != null)
 			{
-				int index = directories.IndexOf(new FilesToMove(listViewDirectories.SelectedItem.ToString()));
+				string dir = listViewDirectories.SelectedItem.ToString();
 				foreach (string file in listViewSourceFiles.SelectedItems)
 				{
-					directories[index].Add(file);
-					listSourceFiles.Remove(file);
-					intTotalFiles++;
+					db.AddFileToDestination(file, dir);
 					UpdateProgress();
 				}
-				listViewDestination.ItemsSource = directories[index].GetFiles();
+				listViewDestination.ItemsSource = db.GetFilesFromDirectory(dir);
 				RefreshListViews();
 				HidePreview();
 			}
@@ -407,12 +288,10 @@ namespace SoupMover
 		{
 			if (listViewDestination.SelectedItems != null && listViewDirectories.SelectedItem != null)
 			{
-				int index = directories.IndexOf(new FilesToMove(listViewDirectories.SelectedItem.ToString()));
 				foreach (string file in listViewDestination.SelectedItems)
 				{
-					listSourceFiles.Add(file);
-					directories[index].Remove(file);
-					intTotalFiles--;
+					db.AddFileToSource(file);
+					db.RemoveFileFromDestination(file, listViewDirectories.SelectedItem.ToString());
 					UpdateProgress();
 				}
 				HidePreview();
@@ -422,7 +301,7 @@ namespace SoupMover
 
 		private void MoveHandler(object sender, RoutedEventArgs e)
 		{
-			if (directories.Count == 0) //TODO: Refactor so any and all GUI calls are handled elsewhere
+			if (db.Count() == 0) //TODO: Refactor so any and all GUI calls are handled elsewhere
 			{
 				MessageBox.Show("No files to move.");
 				return;
@@ -435,17 +314,17 @@ namespace SoupMover
 			
 			bool OverwriteAll = false;
 			bool NoToAll = false;
-			for (int i = 0; i < directories.Count; i++) //we initially check for duplicate files or invalid directories
+			for (int i = 0; i < db.Count(); i++) //we initially check for duplicate files or invalid directories
 			{
+				FilesToMove dir = db.GetDirInfo(i);
 				List<string> removedFiles = new List<string>();
-				if (!Directory.Exists(directories[i].GetDirectory()))
+				if (!Directory.Exists(db.GetDirInfo(i).GetDirectory()))
 				{
-					MessageBox.Show("Error: directory " + directories[i].GetDirectory() + " not found. Was this from an old save?", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-					intCurrentFile += directories[i].Count(); //since the directory straight up does not exist, add all the files to the progress and move on
-					directories[i].Clear();
+					MessageBox.Show("Error: directory " + dir.GetDirectory() + " not found. Was this from an old save?", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+					db.RemoveDirectory(i);
 					continue;
 				}
-				foreach (string file in directories[i].GetFiles())
+				foreach (string file in dir.GetFiles())
 				{
 					if (!File.Exists(file))
 					{
@@ -453,7 +332,7 @@ namespace SoupMover
 						removedFiles.Add(file);
 						continue;
 					}
-					string destination = directories[i].GetDirectory() + "\\" + Path.GetFileName(file);
+					string destination = dir.GetDirectory() + "\\" + Path.GetFileName(file);
 					if (File.Exists(destination) && !OverwriteAll) //file already exists at destination, and no overwrite flag set
 					{
 						FileCompare compare = new FileCompare(file, destination);
@@ -473,10 +352,10 @@ namespace SoupMover
 							string filename = Path.GetFileNameWithoutExtension(file);
 							//First we need the amount of duplicates that are in the folder
 							//Since we'll be off by one due to the original file not including a (x), we add one
-							int offset = (Directory.GetFiles(directories[i].GetDirectory(), filename + " (?)" + ext)).Length + 2;
-							destination = directories[i].GetDirectory() + "\\" + Path.GetFileNameWithoutExtension(file) + " (" + offset + ")" + ext;
+							int offset = (Directory.GetFiles(dir.GetDirectory(), filename + " (?)" + ext)).Length + 2;
+							destination = dir.GetDirectory() + "\\" + Path.GetFileNameWithoutExtension(file) + " (" + offset + ")" + ext;
 							File.Move(file, Path.GetFullPath(file) + Path.GetFileName(destination)); //Renames file
-							if (!directories[i].UpdateFileName(file, destination)) //Attempts to update the file name within the db
+							if (!dir.UpdateFileName(file, destination)) //Attempts to update the file name within the db
 							{
 								MessageBox.Show("Unexpected Error, something went wrong trying to keep both files. It may not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 								return;
@@ -497,7 +376,7 @@ namespace SoupMover
 			DisableButtons();
 			HidePreview();
 			imgPreview.Source = null;
-			worker.RunWorkerAsync(intTotalFiles);
+			//worker.RunWorkerAsync(intTotalFiles);
 		}
 
 		private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -522,7 +401,7 @@ namespace SoupMover
 			if (!e.Cancelled)
 			{
 				bool finished = true;
-				foreach (FilesToMove dirs in directories)
+				foreach (FilesToMove dirs in db.GetDirectories())
 				{
 					MessageBoxResult result = MessageBoxResult.None;
 					if (dirs.Count() != 0 && finished == true)
@@ -532,7 +411,7 @@ namespace SoupMover
 						if(result == MessageBoxResult.No)
                         {
 							foreach (string file in dirs.GetFiles())
-								listSourceFiles.Add(file);
+								db.AddFileToSource(file);
 							dirs.Clear();
 							RefreshListViews();
 						}
@@ -541,7 +420,7 @@ namespace SoupMover
 					else if (dirs.Count() != 0 && result == MessageBoxResult.No) //todo: I don't think I ever actually finished this?
 					{
 						foreach (string file in dirs.GetFiles())
-							listSourceFiles.Add(file);
+							db.AddFileToSource(file);
 						RefreshListViews();
 					}
 				}
@@ -549,7 +428,7 @@ namespace SoupMover
 			}
 			else
 				MessageBox.Show("Cancelled moving remaining files.", "Cancelled", MessageBoxButton.OK, MessageBoxImage.Information);
-			intTotalFiles = 0; //if user wants to add more files after moving the first batch, this resets the total count
+			db.IntTotalFiles = 0; //if user wants to add more files after moving the first batch, this resets the total count
 			EnableButtons();
 		}
 
@@ -557,29 +436,26 @@ namespace SoupMover
 		{
 		   
 			int totalFiles = (int)e.Argument, currentFiles = 0;
-			for (int i = 0; i < directories.Count; i++)
+			for (int i = 0; i < db.Count(); i++)
 			{
 				List<string> removedFiles = new List<string>();
-				for (int j = 0; j < directories[i].Count(); j++)
+				FilesToMove dir = db.GetDirInfo(i);
+				for (int j = 0; j < dir.Count(); j++)
 				{
 					if(worker.CancellationPending == true)
 					{
 						e.Cancel = true;
 						return;
 					}
-					string file = directories[i].GetFile(j); //The file to move
-					string destination = directories[i].GetDirectory() + "\\" + Path.GetFileName(directories[i].GetFile(j)); //The destination folder
-					if (File.Exists(file) && !File.Exists(destination)) //to be ABSOLUTELY CERTAIN, once we get to this file it exists in the source directory and not in the destination folder as well
+					string file = dir.GetFile(j); //The file to move
+					string destination = dir.GetDirectory() + "\\" + Path.GetFileName(dir.GetFile(j)); //The destination folder
+					try
 					{
-						try //todo: need to check if we can access file
-						{
-							File.Move(file, destination);
-							removedFiles.Add(file);
-						}
-						catch (Exception exc)
-						{
-							throw exc;
-						}	
+						db.MoveFile(file, i);
+					}
+					catch
+					{ 
+						
 					}
 					currentFiles++;
 					int prog = Convert.ToInt32(((double)currentFiles / (double)totalFiles) * 100);
@@ -587,7 +463,7 @@ namespace SoupMover
 					Thread.Sleep(300);
 				}
 				foreach (string removed in removedFiles)
-					directories[i].Remove(removed);
+					dir.Remove(removed);
 			}
 
 		}
@@ -595,7 +471,7 @@ namespace SoupMover
 		private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
 		{
 			pb.Value = e.ProgressPercentage;
-			txtProg.Text = e.UserState.ToString() + "/" + intTotalFiles;
+			txtProg.Text = e.UserState.ToString() + "/" + db.IntTotalFiles;
 			
 		}
 
@@ -765,10 +641,9 @@ namespace SoupMover
 			int index = listViewDirectories.SelectedIndex;
 			if (index != -1)
             {
-				//TODO: May have to get the text of selected item, then search for it in directory instead due to searchbox
-				int dirIndex = directories.IndexOf(new FilesToMove(listViewDirectories.SelectedItem.ToString()));
-				listViewDestination.ItemsSource = directories[dirIndex].GetFiles();
-				TextDirLbl.Text = directories[dirIndex].GetDirectory();
+				int dirIndex = db.GetIndexOfDirectory(listViewDirectories.SelectedItem.ToString());
+				listViewDestination.ItemsSource = db.GetDirInfo(dirIndex).GetFiles();
+				TextDirLbl.Text = db.GetDirInfo(dirIndex).GetDirectory();
 				RefreshListViews();
 			}
 				
@@ -780,13 +655,13 @@ namespace SoupMover
 			if (SearchBox.Text != "Search..." && SearchBox.Text != "")
 			{
 				List<FilesToMove> temp = new List<FilesToMove>();
-				foreach (var item in directories)
+				foreach (var item in db.GetDirectories())
 					if (item.GetDirectory().ToLower().Contains(SearchBox.Text.ToLower()))
 						temp.Add(item);
 				listViewDirectories.ItemsSource = temp;
 			}
 			else
-				listViewDirectories.ItemsSource = directories;
+				listViewDirectories.ItemsSource = db.GetDirectories();
 			//Since we're changing the listview of directories, we don't want the user to think a directory is still selected
 			listViewDirectories.SelectedIndex = -1;
 			TextDirLbl.Text = "(No directory selected)";
@@ -813,8 +688,8 @@ namespace SoupMover
 			worker.ProgressChanged += Worker_ProgressChanged;
 			worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
 			InitializeComponent();
-			listViewSourceFiles.ItemsSource = listSourceFiles; //binds List source files to the list view
-			listViewDirectories.ItemsSource = directories;
+			listViewSourceFiles.ItemsSource = db.GetSourceFiles(); //binds List source files to the list view
+			listViewDirectories.ItemsSource = db.GetDirectories();
 			SearchBox.Text = "Search...";
 			time.Interval = TimeSpan.FromSeconds(1);
             time.Tick += Time_Tick;

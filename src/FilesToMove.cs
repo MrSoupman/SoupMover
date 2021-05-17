@@ -7,11 +7,14 @@ namespace SoupMover
     /// <summary>
     /// A class used to store data about a directory and the files that are queued to be moved to it.
     /// </summary>
-    class FilesToMove : IComparable
+    internal class FilesToMove : IComparable
     {
         private string Directory;
         private List<string> Files;
-        public FilesToMove() { }
+        public FilesToMove() 
+        {
+            Directory = "";
+        }
         /// <summary>
         /// Stores a directory and the files to be moved to it.
         /// </summary>
@@ -50,6 +53,17 @@ namespace SoupMover
             }
             else
                 return false;
+        }
+
+        public bool RemoveAt(int index)
+        {
+            if (index < Files.Count)
+            { 
+                Files.RemoveAt(index);
+                return true;
+            }
+            return false;
+
         }
 
         /// <summary>
@@ -156,6 +170,31 @@ namespace SoupMover
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Checks if a file exists in this file db
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns>true if the file exists, false otherwise</returns>
+        public bool Contains(string file)
+        {
+            return Files.Contains(file);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        /// <summary>
+        /// Gets the index of the specified file
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        public int IndexOf(string file)
+        {
+            return Files.IndexOf(file);
         }
     }
 }
