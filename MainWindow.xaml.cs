@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -14,8 +12,6 @@ using System.Windows.Threading;
 using Path = System.IO.Path;
 using MimeTypes;
 using LibVLCSharp.Shared;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using WpfAnimatedGif;
 
 namespace SoupMover
@@ -26,16 +22,13 @@ namespace SoupMover
 	public partial class MainWindow : Window
 	{
 		Data db = new Data();
-		//List<string> listSourceFiles = new List<string>(); //list to store all source files
-		//List<FilesToMove> directories = new List<FilesToMove>(); //list to store all files to move
-		//int intCurrentFile = 0,intTotalFiles = 0; //current file tracks which file is being moved, total tracks all files
 		BackgroundWorker worker = new BackgroundWorker();
 		DispatcherTimer time = new DispatcherTimer();
 		LibVLC lib;
 		LibVLCSharp.Shared.MediaPlayer media;
 		string SaveLocation = "";
 
-		//TODO:Context menu for all listviews, Check for move/changes made before exiting, search bars for all list views, move all non gui related methods to its own cs file, for ontextchange in directory search, we should set destination listview to null
+		//TODO:Context menu for all listviews, Check for move/changes made before exiting, search bars for all list views
 		private void Debug(object sender, RoutedEventArgs e)
 		{
 			
@@ -132,13 +125,15 @@ namespace SoupMover
 			RefreshListViews();
 			listViewDestination.ItemsSource = null;
 			pb.Value = 0;
-			UpdateProgress();
+			
 			TextDirLbl.Text = "(No directory selected)";
 			SearchBox.Text = "Search...";
 			HidePreview();
 
 			//DB
 			db.ResetDB();
+
+			UpdateProgress(); //have to do at the end b/c db holds info on current/total files
 
 		}
 
@@ -376,7 +371,7 @@ namespace SoupMover
 			DisableButtons();
 			HidePreview();
 			imgPreview.Source = null;
-			//worker.RunWorkerAsync(intTotalFiles);
+			worker.RunWorkerAsync();
 		}
 
 		private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -429,13 +424,14 @@ namespace SoupMover
 			else
 				MessageBox.Show("Cancelled moving remaining files.", "Cancelled", MessageBoxButton.OK, MessageBoxImage.Information);
 			db.IntTotalFiles = 0; //if user wants to add more files after moving the first batch, this resets the total count
+			db.IntCurrentFile = 0;
 			EnableButtons();
 		}
 
 		private void Worker_DoWork(object sender, DoWorkEventArgs e)
 		{
 		   
-			int totalFiles = (int)e.Argument, currentFiles = 0;
+			//int totalFiles = (int)e.Argument, currentFiles = 0;
 			for (int i = 0; i < db.Count(); i++)
 			{
 				List<string> removedFiles = new List<string>();
@@ -457,9 +453,9 @@ namespace SoupMover
 					{ 
 						
 					}
-					currentFiles++;
-					int prog = Convert.ToInt32(((double)currentFiles / (double)totalFiles) * 100);
-					(sender as BackgroundWorker).ReportProgress(prog, currentFiles); //pass along the actual progress as well as the numerical amount of files that have been moved
+					//currentFiles++;
+					int prog = Convert.ToInt32(((double)db.IntCurrentFile / (double)db.IntTotalFiles) * 100);
+					(sender as BackgroundWorker).ReportProgress(prog, db.IntCurrentFile); //pass along the actual progress as well as the numerical amount of files that have been moved
 					Thread.Sleep(300);
 				}
 				foreach (string removed in removedFiles)
@@ -665,6 +661,7 @@ namespace SoupMover
 			//Since we're changing the listview of directories, we don't want the user to think a directory is still selected
 			listViewDirectories.SelectedIndex = -1;
 			TextDirLbl.Text = "(No directory selected)";
+			listViewDestination.ItemsSource = null;
 			RefreshListViews();
 		}
 

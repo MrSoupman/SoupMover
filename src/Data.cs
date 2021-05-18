@@ -22,12 +22,12 @@ namespace SoupMover
         /// <summary>
         /// The amount of files that have been moved so far
         /// </summary>
-        public int IntCurrentFile { get; set; }
+        public uint IntCurrentFile { get; set; }
 
         /// <summary>
         /// The total amount of files that have been queued to be moved
         /// </summary>
-        public int IntTotalFiles { get; set; }
+        public uint IntTotalFiles { get; set; }
 
         public Data()
         {
@@ -324,7 +324,6 @@ namespace SoupMover
 
                 return true;
             }
-            return false;
         }
 
         public bool MoveFile(string file, string directory)
@@ -350,7 +349,7 @@ namespace SoupMover
                         int FileIndex = Directories[index].IndexOf(file);
                         try
                         {
-                            File.Move(Directories[index].GetFile(FileIndex), Directories[index].GetDirectory());
+                            File.Move(Directories[index].GetFile(FileIndex), Directories[index].GetDirectory() + "\\" + Path.GetFileName(Directories[index].GetFile(FileIndex)));
                             IntCurrentFile++;
                             if (Directories[index].RemoveAt(FileIndex))
                                 return true;
