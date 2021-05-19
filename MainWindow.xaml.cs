@@ -1,5 +1,7 @@
 ﻿using Microsoft.Win32;
 using SoupMover.FileWindow;
+using SoupMover.Database;
+using SoupMover.FTM;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -27,7 +29,7 @@ namespace SoupMover
 		LibVLC lib;
 		LibVLCSharp.Shared.MediaPlayer media;
 		string SaveLocation = "";
-
+		uint IntCurrentFile = 0;
 		//TODO:Context menu for all listviews, Check for move/changes made before exiting, search bars for all list views
 		private void Debug(object sender, RoutedEventArgs e)
 		{
@@ -57,9 +59,9 @@ namespace SoupMover
 		}
 		private void UpdateProgress()
 		{
-			txtProg.Text = (db.IntCurrentFile + "/" + db.IntTotalFiles);
-			if (db.IntCurrentFile != 0) //edge case
-				pb.Value = Convert.ToInt32(((double)db.IntCurrentFile / db.IntTotalFiles) * 100.0);
+			txtProg.Text = (IntCurrentFile + "/" + db.IntTotalFiles);
+			if (IntCurrentFile != 0) //edge case
+				pb.Value = Convert.ToInt32(((double)IntCurrentFile / db.IntTotalFiles) * 100.0);
 			else
 				pb.Value = 0;
 		}
@@ -115,7 +117,7 @@ namespace SoupMover
 
 		private void About(object sender, RoutedEventArgs e)
 		{
-			MessageBox.Show("Soup Mover V0.8\nSoup Mover is a program for moving files to various folders. " +
+			MessageBox.Show("Soup Mover V0.9\nSoup Mover is a program for moving files to various folders. " +
 				"Made by MrSoupman.\n Thanks to samuelneff for MimeTypeMap, Mono Company for their icons, Thomas Levesque for WpfAnimatedGif, and VLC for LibVLCSharp!", "About", MessageBoxButton.OK, MessageBoxImage.Information);
 		}
 
@@ -132,6 +134,7 @@ namespace SoupMover
 
 			//DB
 			db.ResetDB();
+			IntCurrentFile = 0;
 
 			UpdateProgress(); //have to do at the end b/c db holds info on current/total files
 
@@ -371,6 +374,7 @@ namespace SoupMover
 			DisableButtons();
 			HidePreview();
 			imgPreview.Source = null;
+			listViewDestination.ItemsSource = null;
 			worker.RunWorkerAsync();
 		}
 
@@ -424,42 +428,39 @@ namespace SoupMover
 			else
 				MessageBox.Show("Cancelled moving remaining files.", "Cancelled", MessageBoxButton.OK, MessageBoxImage.Information);
 			db.IntTotalFiles = 0; //if user wants to add more files after moving the first batch, this resets the total count
-			db.IntCurrentFile = 0;
+			IntCurrentFile = 0;
 			EnableButtons();
 		}
 
 		private void Worker_DoWork(object sender, DoWorkEventArgs e)
 		{
 		   
-			//int totalFiles = (int)e.Argument, currentFiles = 0;
 			for (int i = 0; i < db.Count(); i++)
 			{
-				List<string> removedFiles = new List<string>();
 				FilesToMove dir = db.GetDirInfo(i);
-				for (int j = 0; j < dir.Count(); j++)
+				while (dir.Count() > 0)
 				{
-					if(worker.CancellationPending == true)
+					if (worker.CancellationPending == true)
 					{
 						e.Cancel = true;
 						return;
 					}
-					string file = dir.GetFile(j); //The file to move
-					string destination = dir.GetDirectory() + "\\" + Path.GetFileName(dir.GetFile(j)); //The destination folder
+					string file = dir.GetFile(0); //The file to move
+					string destination = dir.GetDirectory() + "\\" + Path.GetFileName(dir.GetFile(0)); //The destination folder
 					try
 					{
 						db.MoveFile(file, i);
 					}
 					catch
-					{ 
-						
+					{
+
 					}
-					//currentFiles++;
-					int prog = Convert.ToInt32(((double)db.IntCurrentFile / (double)db.IntTotalFiles) * 100);
-					(sender as BackgroundWorker).ReportProgress(prog, db.IntCurrentFile); //pass along the actual progress as well as the numerical amount of files that have been moved
+					IntCurrentFile++;
+					int prog = Convert.ToInt32(((double)IntCurrentFile / (double)db.IntTotalFiles) * 100);
+					(sender as BackgroundWorker).ReportProgress(prog, IntCurrentFile); //pass along the actual progress as well as the numerical amount of files that have been moved
 					Thread.Sleep(300);
 				}
-				foreach (string removed in removedFiles)
-					dir.Remove(removed);
+				
 			}
 
 		}
@@ -487,8 +488,6 @@ namespace SoupMover
 			txtPreview.Visibility = Visibility.Collapsed;
 			txtPreviewScroller.Visibility = Visibility.Collapsed;
 			nullPreview.Visibility = Visibility.Collapsed;
-			
-
 		}
 
 		private void PreviewHandler(string file)
@@ -677,7 +676,68 @@ namespace SoupMover
 				SearchBox.Text = "Search...";
 		}
 
-        public MainWindow()
+		private void SourceSearchBox_TextChanged(object sender, TextChangedEventArgs e)
+		{
+
+			if (SourceSearchBox.Text != "Search..." && SourceSearchBox.Text != "")
+			{
+				List<string> temp = new List<string>();
+				foreach (var item in db.GetSourceFiles())
+					if (item.ToLower().Contains(SourceSearchBox.Text.ToLower()))
+						temp.Add(item);
+				listViewSourceFiles.ItemsSource = temp;
+			}
+			else
+				listViewSourceFiles.ItemsSource = db.GetSourceFiles();
+			RefreshListViews();
+		}
+
+		private void SourceSearchBox_GotFocus(object sender, RoutedEventArgs e)
+		{
+			if (SourceSearchBox.Text == "Search...")
+				SourceSearchBox.Text = "";
+		}
+
+		private void SourceSearchBox_LostFocus(object sender, RoutedEventArgs e)
+		{
+			if (SourceSearchBox.Text == "")
+				SourceSearchBox.Text = "Search...";
+		}
+
+		private void DestinationSearchBox_TextChanged(object sender, TextChangedEventArgs e)
+		{
+
+			if (DestinationSearchBox.Text != "Search..." && DestinationSearchBox.Text != "" && listViewDirectories.SelectedIndex != -1)
+			{
+				List<string> temp = new List<string>();
+				foreach (var item in db.GetFilesFromDirectory(listViewDirectories.SelectedItem.ToString()))
+					if (item.ToLower().Contains(DestinationSearchBox.Text.ToLower()))
+						temp.Add(item);
+				listViewDestination.ItemsSource = temp;
+			}
+			else
+			{
+				if (listViewDirectories.SelectedIndex != -1)
+					listViewDestination.ItemsSource = db.GetFilesFromDirectory(listViewDirectories.SelectedItem.ToString());
+				else
+					listViewDestination.ItemsSource = null;
+			}
+			RefreshListViews();
+		}
+
+		private void DestinationSearchBox_GotFocus(object sender, RoutedEventArgs e)
+		{
+			if (DestinationSearchBox.Text == "Search...")
+				DestinationSearchBox.Text = "";
+		}
+
+		private void DestinationSearchBox_LostFocus(object sender, RoutedEventArgs e)
+		{
+			if (DestinationSearchBox.Text == "")
+				DestinationSearchBox.Text = "Search...";
+		}
+
+		public MainWindow()
 		{
 			worker.WorkerSupportsCancellation = true;
 			worker.WorkerReportsProgress = true;
@@ -688,6 +748,8 @@ namespace SoupMover
 			listViewSourceFiles.ItemsSource = db.GetSourceFiles(); //binds List source files to the list view
 			listViewDirectories.ItemsSource = db.GetDirectories();
 			SearchBox.Text = "Search...";
+			SourceSearchBox.Text = "Search...";
+			DestinationSearchBox.Text = "Search...";
 			time.Interval = TimeSpan.FromSeconds(1);
             time.Tick += Time_Tick;
 			vidPreview.Loaded += vidPreview_Loaded;

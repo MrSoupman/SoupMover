@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SoupMover
+namespace SoupMover.FTM
 {
     /// <summary>
     /// A class used to store data about a directory and the files that are queued to be moved to it.
     /// </summary>
-    internal class FilesToMove : IComparable
+    public class FilesToMove : IComparable
     {
         private string Directory;
         private List<string> Files;

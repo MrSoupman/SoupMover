@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoupMover", "SoupMover.csproj", "{E08120D4-2DDF-469C-863D-F83041E3A302}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoupMoverTests", "..\SoupMoverTests\SoupMoverTests.csproj", "{C1215C84-91DE-4A43-B542-0CAF0C9D517E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,18 @@ Global
 		{E08120D4-2DDF-469C-863D-F83041E3A302}.Release|x64.Build.0 = Release|x64
 		{E08120D4-2DDF-469C-863D-F83041E3A302}.Release|x86.ActiveCfg = Release|x86
 		{E08120D4-2DDF-469C-863D-F83041E3A302}.Release|x86.Build.0 = Release|x86
+		{C1215C84-91DE-4A43-B542-0CAF0C9D517E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1215C84-91DE-4A43-B542-0CAF0C9D517E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1215C84-91DE-4A43-B542-0CAF0C9D517E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C1215C84-91DE-4A43-B542-0CAF0C9D517E}.Debug|x64.Build.0 = Debug|Any CPU
+		{C1215C84-91DE-4A43-B542-0CAF0C9D517E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C1215C84-91DE-4A43-B542-0CAF0C9D517E}.Debug|x86.Build.0 = Debug|Any CPU
+		{C1215C84-91DE-4A43-B542-0CAF0C9D517E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1215C84-91DE-4A43-B542-0CAF0C9D517E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1215C84-91DE-4A43-B542-0CAF0C9D517E}.Release|x64.ActiveCfg = Release|Any CPU
+		{C1215C84-91DE-4A43-B542-0CAF0C9D517E}.Release|x64.Build.0 = Release|Any CPU
+		{C1215C84-91DE-4A43-B542-0CAF0C9D517E}.Release|x86.ActiveCfg = Release|Any CPU
+		{C1215C84-91DE-4A43-B542-0CAF0C9D517E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

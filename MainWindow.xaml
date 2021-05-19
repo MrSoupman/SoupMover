@@ -52,22 +52,26 @@
                 </StackPanel>
                 
                 <GroupBox Header="Source Files" Grid.Column="1">
-                        <ListView Name="listViewSourceFiles" SelectionChanged="listViewSourceFiles_SelectionChanged">
-                            <ListView.Resources>
-                                <ContextMenu x:Key="SourceContextMenu">
-                                    <MenuItem Header="Open File"/>
-                                    <MenuItem Header="Open in Explorer"/>
-                                    <Separator/>
-                                    <MenuItem Header="Remove File"/>
-                                    <MenuItem Header="Delete File From Disk"/>
-                                </ContextMenu>
-                            </ListView.Resources>
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="{x:Type ListViewItem}">
-                                    <Setter Property="ContextMenu" Value="{StaticResource SourceContextMenu}"/>
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                        </ListView>
+                        <DockPanel>
+                            <TextBox DockPanel.Dock="Top" Name="SourceSearchBox" TextChanged="SourceSearchBox_TextChanged" GotFocus="SourceSearchBox_GotFocus" LostFocus="SourceSearchBox_LostFocus"></TextBox>
+                            <ListView Name="listViewSourceFiles" SelectionChanged="listViewSourceFiles_SelectionChanged">
+                                <ListView.Resources>
+                                    <ContextMenu x:Key="SourceContextMenu">
+                                        <MenuItem Header="Open File"/>
+                                        <MenuItem Header="Open in Explorer"/>
+                                        <Separator/>
+                                        <MenuItem Header="Remove File"/>
+                                        <MenuItem Header="Delete File From Disk"/>
+                                    </ContextMenu>
+                                </ListView.Resources>
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="{x:Type ListViewItem}">
+                                        <Setter Property="ContextMenu" Value="{StaticResource SourceContextMenu}"/>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                            </ListView>
+                        </DockPanel>
+                        
                     </GroupBox>
 
                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
@@ -76,7 +80,11 @@
                             " Content="&lt;-" Click="MoveToSource"></Button>
                 </StackPanel>
                     <GroupBox Header="Destination" Grid.Column="4">
-                        <ListView Name="listViewDestination" SelectionChanged="listViewDestination_SelectionChanged"/>
+                        <DockPanel>
+                            <TextBox DockPanel.Dock="Top" Name="DestinationSearchBox" TextChanged="DestinationSearchBox_TextChanged" GotFocus="DestinationSearchBox_GotFocus" LostFocus="DestinationSearchBox_LostFocus"></TextBox>
+                            <ListView Name="listViewDestination" SelectionChanged="listViewDestination_SelectionChanged"/>
+                        </DockPanel>
+                        
                     </GroupBox>
                 </Grid>
             

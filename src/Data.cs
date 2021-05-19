@@ -4,10 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-
-namespace SoupMover
+using SoupMover.FTM;
+namespace SoupMover.Database
 {
-    class Data
+    public class Data
     {
         /// <summary>
         /// Holds a list of the files to be queued to another directory
@@ -19,10 +19,6 @@ namespace SoupMover
         /// </summary>
         private List<FilesToMove> Directories;
 
-        /// <summary>
-        /// The amount of files that have been moved so far
-        /// </summary>
-        public uint IntCurrentFile { get; set; }
 
         /// <summary>
         /// The total amount of files that have been queued to be moved
@@ -68,6 +64,30 @@ namespace SoupMover
         }
 
         /// <summary>
+        /// Adds a file to a directory
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="directory"></param>
+        /// <returns></returns>
+        public bool AddFileToDestination(string file, string directory)
+        {
+            int index = GetIndexOfDirectory(directory);
+            if (index > Directories.Count || index < 0)
+                return false;
+            if (!Directories[index].Contains(file))
+            {
+                if (Directories[index].Add(file))
+                {
+                    IntTotalFiles++;
+                    RemoveFileFromSource(file);
+                    return true;
+                }
+
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Removes a file from its destination, if both exist.
         /// </summary>
         /// <param name="file">The file to be moved</param>
@@ -93,31 +113,7 @@ namespace SoupMover
             }
             return false;
         }
-
-        /// <summary>
-        /// Adds a file to a directory
-        /// </summary>
-        /// <param name="file"></param>
-        /// <param name="directory"></param>
-        /// <returns></returns>
-        public bool AddFileToDestination(string file, string directory)
-        {
-            int index = GetIndexOfDirectory(directory);
-            if (index > Directories.Count || index < 0)
-                return false;
-            if (!Directories[index].Contains(file))
-            {
-                if (Directories[index].Add(file))
-                {
-                    IntTotalFiles++;
-                    RemoveFileFromSource(file);
-                    return true;
-                }
-
-            }
-            return false;
-        }
-
+                
         /// <summary>
 		/// Adds a directory to db, if it doesn't exist
 		/// </summary>
@@ -127,7 +123,7 @@ namespace SoupMover
             FilesToMove dir = new FilesToMove(directory);
             //If we get a valid directory to drop things in, we need to create a new directory, 
             //as well as a list to hold what files go to that directory
-            if (!Directories.Contains(dir))
+            if (!Directories.Contains(dir) && Directory.Exists(directory))
             {
                 Directories.Add(dir);
                 Directories.Sort();
@@ -228,7 +224,6 @@ namespace SoupMover
         {
             SourceFiles.Clear();
             Directories.Clear();
-            IntCurrentFile = 0;
             IntTotalFiles = 0;
         }
 
@@ -241,26 +236,31 @@ namespace SoupMover
         {
             if (File.Exists(file))
             {
-                using (StreamReader reader = File.OpenText(file)) //TODO: Need to validate json prior to accessing it
+                using (StreamReader reader = File.OpenText(file))
                 {
                     JObject jFile = (JObject)JToken.ReadFrom(new JsonTextReader(reader));
-                    JArray sourceArray = JArray.Parse(jFile["SourceFiles"].ToString());
-                    foreach (JToken token in sourceArray)
-                        SourceFiles.Add(token.ToString());
-                    JObject dirObj = JObject.Parse(jFile["Directories"].ToString());
-                    Console.WriteLine(dirObj.Count);
-                    foreach (JContainer obj in dirObj.Children())
+                    if (jFile.ContainsKey("SourceFiles") && jFile.ContainsKey("Directories"))
                     {
-                        JProperty property = obj.ToObject<JProperty>();
-                        FilesToMove dir = new FilesToMove(property.Name);
-                        JArray filesArray = JArray.Parse(property.Value.ToString());
-                        foreach (JToken token in filesArray)
+                        JArray sourceArray = JArray.Parse(jFile["SourceFiles"].ToString());
+                        foreach (JToken token in sourceArray)
+                            SourceFiles.Add(token.ToString());
+                        JObject dirObj = JObject.Parse(jFile["Directories"].ToString());
+                        Console.WriteLine(dirObj.Count);
+                        foreach (JContainer obj in dirObj.Children())
                         {
-                            dir.Add(token.ToString());
-                            IntTotalFiles++;
+                            JProperty property = obj.ToObject<JProperty>();
+                            FilesToMove dir = new FilesToMove(property.Name);
+                            JArray filesArray = JArray.Parse(property.Value.ToString());
+                            foreach (JToken token in filesArray)
+                            {
+                                dir.Add(token.ToString());
+                                IntTotalFiles++;
+                            }
+                            Directories.Add(dir);
                         }
-                        Directories.Add(dir);
                     }
+                    else
+                        return false;
                 }
                 return true;
             }
@@ -350,7 +350,6 @@ namespace SoupMover
                         try
                         {
                             File.Move(Directories[index].GetFile(FileIndex), Directories[index].GetDirectory() + "\\" + Path.GetFileName(Directories[index].GetFile(FileIndex)));
-                            IntCurrentFile++;
                             if (Directories[index].RemoveAt(FileIndex))
                                 return true;
                         }
