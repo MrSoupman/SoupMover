@@ -294,7 +294,7 @@ namespace SoupMover.Database
                         writer.WritePropertyName(dirs.GetDirectory());
                         writer.WriteStartArray();
                         foreach (string dfile in dirs.GetFiles())
-                            writer.WriteValue(file);
+                            writer.WriteValue(dfile);
                         writer.WriteEndArray();
                     }
                     writer.WriteEnd();
