@@ -322,8 +322,10 @@ namespace SoupMover
 					db.RemoveDirectory(i);
 					continue;
 				}
-				foreach (string file in dir.GetFiles())
+
+				for (int j = 0; j < dir.Count(); j++)
 				{
+					string file = dir.GetFile(j);
 					if (!File.Exists(file))
 					{
 						MessageBox.Show("Error: source file " + file + " not found. Was this from an old save?", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -351,13 +353,14 @@ namespace SoupMover
 							//First we need the amount of duplicates that are in the folder
 							//Since we'll be off by one due to the original file not including a (x), we add one
 							int offset = (Directory.GetFiles(dir.GetDirectory(), filename + " (?)" + ext)).Length + 2;
-							destination = dir.GetDirectory() + "\\" + Path.GetFileNameWithoutExtension(file) + " (" + offset + ")" + ext;
-							File.Move(file, Path.GetFullPath(file) + Path.GetFileName(destination)); //Renames file
-							if (!dir.UpdateFileName(file, destination)) //Attempts to update the file name within the db
+							destination = Path.GetFileNameWithoutExtension(file) + " (" + offset + ")" + ext;
+							File.Move(file, Path.GetDirectoryName(file) + "\\" + destination); //Renames file
+							if (!dir.UpdateFileName(file, Path.GetDirectoryName(file) + "\\" + destination)) //Attempts to update the file name within the db
 							{
 								MessageBox.Show("Unexpected Error, something went wrong trying to keep both files. It may not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 								return;
 							}
+
 						}
 						else if (compare.RESULT == Result.CANCEL)
 							return;
