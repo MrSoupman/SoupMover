@@ -28,7 +28,7 @@ namespace SoupMover
 		DispatcherTimer time = new DispatcherTimer();
 		LibVLC lib;
 		LibVLCSharp.Shared.MediaPlayer media;
-		string SaveLocation = "";
+        string SaveLocation = "";
 		uint IntCurrentFile = 0;
 		//TODO:Context menu for all listviews, Check for move/changes made before exiting, search bars for all list views
 		private void Debug(object sender, RoutedEventArgs e)
@@ -392,7 +392,7 @@ namespace SoupMover
 					writer.WriteLine("Exception Dump on " + DateTime.Now.ToString("MM-dd-yy-hhmmss"));
 					writer.WriteLine("----------------------------------------\n");
 					writer.WriteLine(e.Error);
-					writer.WriteLine("----------------------------------------");
+					writer.WriteLine("----------------------------------------\n");
 					writer.WriteLine("End of dump.");
 				}
 				MessageBox.Show("An error has occurred while moving files. An exception log has been created where this program exists.","Error",MessageBoxButton.OK,MessageBoxImage.Error);
