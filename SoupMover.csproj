@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>soup icon.ico</ApplicationIcon>
@@ -20,11 +20,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LibVLCSharp.WPF" Version="3.4.9" />
-    <PackageReference Include="MimeTypeMapOfficial" Version="1.0.15" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.12" />
-    <PackageReference Include="WpfAnimatedGif" Version="2.0.0" />
+    <PackageReference Include="LibVLCSharp.WPF" Version="3.6.1" />
+    <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.16" />
+    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
   </ItemGroup>
 
   <ItemGroup>

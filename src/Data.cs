@@ -182,11 +182,11 @@ namespace SoupMover.Database
             }
             catch (UnauthorizedAccessException e)
             {
-                throw e;
+                throw;
             }
             catch (PathTooLongException e)
             {
-                throw e;
+                throw;
             }
         }
 
@@ -209,11 +209,11 @@ namespace SoupMover.Database
             }
             catch (UnauthorizedAccessException e)
             {
-                throw e;
+                throw;
             }
             catch (PathTooLongException e)
             {
-                throw e;
+                throw;
             }
         }
 
@@ -356,7 +356,7 @@ namespace SoupMover.Database
                         catch (Exception e)
                         {
 
-                            throw e;
+                            throw;
                         }
                         return true;
                     }
