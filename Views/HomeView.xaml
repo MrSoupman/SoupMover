@@ -128,14 +128,16 @@
                         <TextBox DockPanel.Dock="Top"></TextBox>
                         <TextBlock DockPanel.Dock="Top">Selected Directory:</TextBlock>
                         <TextBlock DockPanel.Dock="Top" TextWrapping="WrapWithOverflow" Name="TextDirLbl">(No directory selected)</TextBlock>
-                        <ListView DockPanel.Dock="Bottom"/>
+                        <ListView ItemsSource="{Binding Directories}" DockPanel.Dock="Bottom">
+                            
+                        </ListView>
                     </DockPanel>
 
                 </GroupBox>
                 <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch"/>
                 <!--Pane 4 is for progress tracker, and move/undo/stop-->
                 <StackPanel Grid.Row="2">
-                    <Button Name="btnAddDirectory" Margin="5 5 5 5">Add Directory</Button>
+                    <Button Command="{Binding AddDirectoryCommand}" Name="btnAddDirectory" Margin="5 5 5 5">Add Directory</Button>
                     <Button Name="btnRemoveDirectory" Margin="5 0 5 5">Remove Directory</Button>
                     <Separator Margin="0 0 0 5"/>
                     <ProgressBar Name="pb" VerticalAlignment="Top" Height="15" Minimum="0" Maximum="100"/>

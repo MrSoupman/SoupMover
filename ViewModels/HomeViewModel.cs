@@ -13,16 +13,19 @@ namespace SoupMover.ViewModels
     {
         public ObservableCollection<string> SourceFiles { get; init; } //Stores the current files that have not been added to any destination
 
-        public ObservableCollection<DestinationPathViewModel> Destinations; //Stores the current directories with files to be moved in
+        public ObservableCollection<DestinationPathViewModel> Directories { get; init; } //Stores the current directories with files to be moved in
 
         public ICommand AddFileCommand { get; }
+        public ICommand AddDirectoryCommand { get; }
         public HomeViewModel()
         {
             SourceFiles = new ObservableCollection<string>();
-            Destinations = new ObservableCollection<DestinationPathViewModel>();
+            Directories = new ObservableCollection<DestinationPathViewModel>();
 
             //Commands
             AddFileCommand = new AddFileCommand(SourceFiles);
+            AddDirectoryCommand = new AddDirectoryCommand(Directories);
+
         }
     }
 }

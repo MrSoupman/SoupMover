@@ -14,6 +14,11 @@ namespace SoupMover.ViewModels
         public string Path => DestPath.Path;
         public List<ModFile> modFiles => DestPath.GetFiles();
 
+        public override string ToString()
+        {
+            return Path;
+        }
+
         public DestinationPathViewModel(DestinationPath DestPath)
         {
             this.DestPath = DestPath;
