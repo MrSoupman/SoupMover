@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SoupMover.ViewModels
 {
-    public class DestinationPathViewModel
+    public class DestinationPathViewModel : IComparable
     {
         private readonly DestinationPath DestPath;
 
@@ -17,6 +17,20 @@ namespace SoupMover.ViewModels
         public override string ToString()
         {
             return Path;
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (obj != null)
+            {
+                return DestPath.Path.CompareTo((obj as DestinationPath).Path);
+            }
+            throw new ArgumentException("Null Object");
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Path.Equals(obj.ToString());
         }
 
         public DestinationPathViewModel(DestinationPath DestPath)

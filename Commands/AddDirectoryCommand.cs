@@ -1,4 +1,5 @@
-﻿using SoupMover.ViewModels;
+﻿using SoupMover.Models;
+using SoupMover.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -17,7 +18,9 @@ namespace SoupMover.Commands
             System.Windows.Forms.DialogResult result = dialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK && dialog.SelectedPath.Length > 0)
             {
-                Directories.Add(new DestinationPathViewModel(new Models.DestinationPath(dialog.SelectedPath)));
+                DestinationPathViewModel DestPathVM = new DestinationPathViewModel(new DestinationPath(dialog.SelectedPath));
+                if(!Directories.Contains(DestPathVM))
+                    Directories.Add(DestPathVM);
             }
         }
 

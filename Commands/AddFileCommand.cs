@@ -20,7 +20,10 @@ namespace SoupMover.Commands
             if (open.ShowDialog() == true)
             {
                 foreach (string filename in open.FileNames)
-                    SourceFiles.Add(filename);
+                { 
+                    if(!SourceFiles.Contains(filename))
+                        SourceFiles.Add(filename);
+                }
             }
         }
 
