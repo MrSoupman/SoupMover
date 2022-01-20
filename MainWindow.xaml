@@ -6,159 +6,16 @@
         xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         xmlns:local="clr-namespace:SoupMover"
+        xmlns:views="clr-namespace:SoupMover.Views"
+        xmlns:vms="clr-namespace:SoupMover.ViewModels"
         mc:Ignorable="d"
         Title="Soup Mover" Height="500" Width="675">
-    <DockPanel>
-        <Menu DockPanel.Dock="Top">
-            <MenuItem Header="_File">
-                <MenuItem Header="_Add Folders Recursively" Click="AddDirectoriesRecursively"/>
-                <MenuItem Header="_Add Files Recursively" Click="AddFilesRecursively"/>
-                <Separator/>
-                <MenuItem Header="_Load" Click="Load"/>
-                <MenuItem Header="_Save" Click="Save"/>
-                <Separator/>
-                <MenuItem Header="_Exit" Click="Exit"/>
-            </MenuItem>
-            <MenuItem Header="_Help">
-                <MenuItem Header="_About" Click="About"/>
-                <MenuItem Header="_Reset" Click="ResetHandler"/>
-            </MenuItem>
-        </Menu>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="22*"/>
-                <ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="7*"/>
-            </Grid.ColumnDefinitions>
-        <Grid>
-            <Grid.RowDefinitions>
-                    <RowDefinition Height="172"/>
-                    <RowDefinition Height="5"/>
-                    <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <!--This section for image preview, file add/move-->
-            <!--Pane 1 is for adding images that need to be moved, and deciding where it needs to be moved-->
-            <Grid Background="LightGray">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0.5*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="0.25*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                
-                <StackPanel VerticalAlignment="Center">
-                    <Button Margin="5 5 5 5" Name="btnAddFiles" Click="AddFiles">Add Files</Button>
-                    <Button Margin="5 5 5 5" Name="btnRemoveFiles" Click="RemoveFiles">Remove Files</Button>
-                </StackPanel>
-                
-                <GroupBox Header="Source Files" Grid.Column="1">
-                        <DockPanel>
-                            <TextBox DockPanel.Dock="Top" Name="SourceSearchBox" TextChanged="SourceSearchBox_TextChanged" GotFocus="SourceSearchBox_GotFocus" LostFocus="SourceSearchBox_LostFocus"></TextBox>
-                            <ListView Name="listViewSourceFiles" SelectionChanged="listViewSourceFiles_SelectionChanged">
-                                <ListView.Resources>
-                                    <ContextMenu x:Key="SourceContextMenu">
-                                        <MenuItem Header="Open File"/>
-                                        <MenuItem Header="Open in Explorer"/>
-                                        <Separator/>
-                                        <MenuItem Header="Remove File"/>
-                                        <MenuItem Header="Delete File From Disk"/>
-                                    </ContextMenu>
-                                </ListView.Resources>
-                                <ListView.ItemContainerStyle>
-                                    <Style TargetType="{x:Type ListViewItem}">
-                                        <Setter Property="ContextMenu" Value="{StaticResource SourceContextMenu}"/>
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                            </ListView>
-                        </DockPanel>
-                        
-                    </GroupBox>
-
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <Button Name="btnMoveTo" Margin="5 5 5 20" Content="-&gt;" Click="MoveToDestination"/>
-                    <Button Name="btnMoveFrom" Margin="5 20 5 5
-                            " Content="&lt;-" Click="MoveToSource"></Button>
-                </StackPanel>
-                    <GroupBox Header="Destination" Grid.Column="4">
-                        <DockPanel>
-                            <TextBox DockPanel.Dock="Top" Name="DestinationSearchBox" TextChanged="DestinationSearchBox_TextChanged" GotFocus="DestinationSearchBox_GotFocus" LostFocus="DestinationSearchBox_LostFocus"></TextBox>
-                            <ListView Name="listViewDestination" SelectionChanged="listViewDestination_SelectionChanged"/>
-                        </DockPanel>
-                        
-                    </GroupBox>
-                </Grid>
-            
-            <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch"/>
-            <!--Pane 2 Needs to be for our image preview-->
-            <GroupBox Header="File Preview" Margin="5" Grid.Row="3">
-                    <Grid>
-                        <Image Name="imgPreview" Visibility="Collapsed"/>
-                        <Image Name ="gifPreview" Visibility="Collapsed" gif:ImageBehavior.RepeatBehavior="0x"/>
-                        <Grid Name="previewGrid" Visibility="Hidden">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="0.1*"/>
-                            </Grid.RowDefinitions>
-                            <vlc:VideoView Name="vidPreview"/>
-                            <Grid Grid.Row="1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="0.1*"/>
-                                    <ColumnDefinition Width="0.1*"/>
-                                    <ColumnDefinition Width="0.1*"/>
-                                    <ColumnDefinition Width="0.1*"/>
-                                    <ColumnDefinition Width="0.7*"/>
-                                </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0" Name="btnPlay" Click="btnPlay_Click">
-                                    <Image Source="Images/play.png"/>
-                                </Button>
-                                <Button Grid.Column="1" Name="btnPause" Click="btnPause_Click">
-                                    <Image Source="Images/pause.png"/>
-                                </Button>
-                                <Button Grid.Column="2" Name="btnMute" Click="btnMute_Click">
-                                    <Image Name="imgAudio" Source="Images/volume-up.png"/>
-                                </Button>
-                                <TextBlock Grid.Column="3" TextAlignment="Center" Name ="lblTime" VerticalAlignment="Center">00:00:00</TextBlock>
-                                <Slider Name="slider" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="4" ValueChanged="slider_ValueChanged" Thumb.DragCompleted="slider_DragCompleted"/>
-                            </Grid>
-                        </Grid>
-                        <ScrollViewer Name="txtPreviewScroller" Visibility="Collapsed">
-                            <TextBox Name="txtPreview" Visibility="Collapsed" IsReadOnly="True"/>
-                        </ScrollViewer>
-                        <TextBlock Name="nullPreview" Visibility="Collapsed">Error, file type not supported or error occurred while trying to read it.</TextBlock>
-                    </Grid>
-            </GroupBox>
-            
-        </Grid>
-        <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"/>
-        <Grid Background="LightGray" Grid.Column="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="250"/>
-                <RowDefinition Height="5"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <!--This section for directory and progress-->
-            <!--Pane 3 is for the list of directories that files can be moved to-->
-                <GroupBox Header="Directories" Grid.Column="1">
-                    <DockPanel>
-                        <TextBox DockPanel.Dock="Top" Name ="SearchBox" TextChanged="SearchBox_TextChanged" GotFocus="SearchBox_GotFocus" LostFocus="SearchBox_LostFocus"></TextBox>
-                        <TextBlock DockPanel.Dock="Top">Selected Directory:</TextBlock>
-                        <TextBlock DockPanel.Dock="Top" TextWrapping="WrapWithOverflow" Name="TextDirLbl">(No directory selected)</TextBlock>
-                        <ListView DockPanel.Dock="Bottom" Name="listViewDirectories" SelectionMode="Single" MouseUp="listViewDirectories_MouseUp"/>
-                    </DockPanel>
-                    
-                </GroupBox>
-                <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch"/>
-            <!--Pane 4 is for progress tracker, and move/undo/stop-->
-                <StackPanel Grid.Row="2">
-                    <Button Name="btnAddDirectory" Margin="5 5 5 5" Click="AddDirectories">Add Directory</Button>
-                    <Button Name="btnRemoveDirectory" Margin="5 0 5 5" Click="RemoveDirectories">Remove Directory</Button>
-                    <Separator Margin="0 0 0 5"/>
-                    <ProgressBar Name="pb" VerticalAlignment="Top" Height="15" Minimum="0" Maximum="100"/>
-                    <TextBlock Name="txtProg" FontSize="25" TextAlignment="Center">0/0</TextBlock>
-                    <Button Name="btnMove" Margin="5 0 5 5" Click="MoveHandler">Move</Button>
-                    <Button Name="btnCancel" Margin="5 0 5 5" Click="Cancel">Cancel</Button>
-                </StackPanel>
-            </Grid>
-        </Grid>
-    </DockPanel>
+    <Grid>
+        <Grid.Resources>
+            <DataTemplate DataType="{x:Type vms:HomeViewModel}">
+                <views:HomeView/>
+            </DataTemplate>
+        </Grid.Resources>
+        <views:HomeView Content="{Binding CurrentVM}"/>
+    </Grid>
 </Window>
