@@ -11,7 +11,7 @@ namespace SoupMover.Models
     /// </summary>
     public class DestinationPath : IComparable
     {
-        private string Path { get; init; }
+        public string Path { get; init; }
         private List<ModFile> Files;
         
         public int CompareTo(object obj)

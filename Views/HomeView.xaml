@@ -47,14 +47,14 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel VerticalAlignment="Center">
-                        <Button Margin="5 5 5 5" Name="btnAddFiles">Add Files</Button>
+                        <Button Command="{Binding AddFileCommand}" Margin="5 5 5 5" Name="btnAddFiles">Add Files</Button>
                         <Button Margin="5 5 5 5" Name="btnRemoveFiles">Remove Files</Button>
                     </StackPanel>
 
                     <GroupBox Header="Source Files" Grid.Column="1">
                         <DockPanel>
                             <TextBox DockPanel.Dock="Top"></TextBox>
-                            <ListView>
+                            <ListView ItemsSource="{Binding SourceFiles}">
                             </ListView>
                         </DockPanel>
 
