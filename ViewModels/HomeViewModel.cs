@@ -12,9 +12,11 @@ namespace SoupMover.ViewModels
     public class HomeViewModel : ViewModelBase
     {
         //Viewmodel specific variables
-        public ObservableCollection<string> SourceFiles { get; init; } //Stores the current files that have not been added to any destination
+        private ObservableCollection<string> _SourceFiles { get; init; } //Stores the current files that have not been added to any destination
+        public IEnumerable<string> SourceFiles => _SourceFiles;
 
-        public ObservableCollection<DestinationPathViewModel> Directories { get; init; } //Stores the current directories with files to be moved in
+        private ObservableCollection<DestinationPathViewModel> _Directories { get; init; } //Stores the current directories with files to be moved in
+        public IEnumerable<DestinationPathViewModel> Directories => _Directories;
 
         //Public facing View Variables
         private int _SelectedSourceIndex;
@@ -31,19 +33,37 @@ namespace SoupMover.ViewModels
             }
         }
 
+        private int _SelectedDirectoryIndex;
+        public int SelectedDirectoryIndex
+        {
+            get
+            {
+                return _SelectedDirectoryIndex;
+            }
+            set
+            {
+                _SelectedDirectoryIndex = value;
+                OnPropertyChanged(nameof(SelectedDirectoryIndex));
+            }
+        }
+
+        //ICommands
         public ICommand AddFileCommand { get; }
         public ICommand RemoveFileCommand { get; }
         public ICommand AddDirectoryCommand { get; }
+        public ICommand RemoveDirectoryCommand { get; }
         public HomeViewModel()
         {
-            SourceFiles = new ObservableCollection<string>();
-            Directories = new ObservableCollection<DestinationPathViewModel>();
+            _SourceFiles = new ObservableCollection<string>();
+            _Directories = new ObservableCollection<DestinationPathViewModel>();
             _SelectedSourceIndex = -1;
+            _SelectedDirectoryIndex = -1;
 
             //Commands
-            AddFileCommand = new AddFileCommand(SourceFiles);
-            RemoveFileCommand = new RemoveFileCommand(SourceFiles, this);
-            AddDirectoryCommand = new AddDirectoryCommand(Directories);
+            AddFileCommand = new AddFileCommand(_SourceFiles);
+            RemoveFileCommand = new RemoveFileCommand(_SourceFiles, this);
+            AddDirectoryCommand = new AddDirectoryCommand(_Directories);
+            RemoveDirectoryCommand = new RemoveDirectoryCommand(this, _Directories);
 
         }
     }

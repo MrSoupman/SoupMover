@@ -38,5 +38,7 @@ namespace SoupMover.ViewModels
             this.DestPath = DestPath;
         }
 
+        public DestinationPath GetDestinationPath() => DestPath;
+
     }
 }

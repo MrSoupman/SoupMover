@@ -45,12 +45,7 @@
                         <ColumnDefinition Width="0.25*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-
-                    <StackPanel VerticalAlignment="Center">
-                        <Button Command="{Binding AddFileCommand}" Margin="5 5 5 5" Name="btnAddFiles">Add Files</Button>
-                        <Button CommandParameter="{Binding ElementName=SourceListView,Path=SelectedItems}" Command="{Binding RemoveFileCommand}" Margin="5 5 5 5" Name="btnRemoveFiles">Remove Files</Button>
-                    </StackPanel>
-
+                    
                     <GroupBox Header="Source Files" Grid.Column="1">
                         <DockPanel>
                             <TextBox DockPanel.Dock="Top"></TextBox>
@@ -59,6 +54,12 @@
                         </DockPanel>
 
                     </GroupBox>
+                    <StackPanel VerticalAlignment="Center" Grid.Column="0">
+                        <Button Command="{Binding AddFileCommand}" Margin="5 5 5 5" Name="btnAddFiles">Add Files</Button>
+                        <Button CommandParameter="{Binding ElementName=SourceListView,Path=SelectedItems}" Command="{Binding RemoveFileCommand}" Margin="5 5 5 5" Name="btnRemoveFiles">Remove Files</Button>
+                    </StackPanel>
+
+                    
 
                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
                         <Button Name="btnMoveTo" Margin="5 5 5 20" Content="-&gt;"/>
@@ -128,7 +129,7 @@
                         <TextBox DockPanel.Dock="Top"></TextBox>
                         <TextBlock DockPanel.Dock="Top">Selected Directory:</TextBlock>
                         <TextBlock DockPanel.Dock="Top" TextWrapping="WrapWithOverflow" Name="TextDirLbl">(No directory selected)</TextBlock>
-                        <ListView ItemsSource="{Binding Directories}" DockPanel.Dock="Bottom">
+                        <ListView SelectedIndex="{Binding SelectedDirectoryIndex}" ItemsSource="{Binding Directories}" DockPanel.Dock="Bottom">
                             
                         </ListView>
                     </DockPanel>
@@ -138,7 +139,7 @@
                 <!--Pane 4 is for progress tracker, and move/undo/stop-->
                 <StackPanel Grid.Row="2">
                     <Button Command="{Binding AddDirectoryCommand}" Name="btnAddDirectory" Margin="5 5 5 5">Add Directory</Button>
-                    <Button Name="btnRemoveDirectory" Margin="5 0 5 5">Remove Directory</Button>
+                    <Button Command="{Binding RemoveDirectoryCommand}" Name="btnRemoveDirectory" Margin="5 0 5 5">Remove Directory</Button>
                     <Separator Margin="0 0 0 5"/>
                     <ProgressBar Name="pb" VerticalAlignment="Top" Height="15" Minimum="0" Maximum="100"/>
                     <TextBlock Name="txtProg" FontSize="25" TextAlignment="Center">0/0</TextBlock>
