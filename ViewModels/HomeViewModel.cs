@@ -32,6 +32,7 @@ namespace SoupMover.ViewModels
         }
 
         public ICommand AddFileCommand { get; }
+        public ICommand RemoveFileCommand { get; }
         public ICommand AddDirectoryCommand { get; }
         public HomeViewModel()
         {
@@ -41,6 +42,7 @@ namespace SoupMover.ViewModels
 
             //Commands
             AddFileCommand = new AddFileCommand(SourceFiles);
+            RemoveFileCommand = new RemoveFileCommand(SourceFiles, this);
             AddDirectoryCommand = new AddDirectoryCommand(Directories);
 
         }

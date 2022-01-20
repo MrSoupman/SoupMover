@@ -48,13 +48,13 @@
 
                     <StackPanel VerticalAlignment="Center">
                         <Button Command="{Binding AddFileCommand}" Margin="5 5 5 5" Name="btnAddFiles">Add Files</Button>
-                        <Button Margin="5 5 5 5" Name="btnRemoveFiles">Remove Files</Button>
+                        <Button CommandParameter="{Binding ElementName=SourceListView,Path=SelectedItems}" Command="{Binding RemoveFileCommand}" Margin="5 5 5 5" Name="btnRemoveFiles">Remove Files</Button>
                     </StackPanel>
 
                     <GroupBox Header="Source Files" Grid.Column="1">
                         <DockPanel>
                             <TextBox DockPanel.Dock="Top"></TextBox>
-                            <ListView ItemsSource="{Binding SourceFiles}" SelectedIndex="{Binding SelectedSourceIndex}">
+                            <ListView x:Name="SourceListView" ItemsSource="{Binding SourceFiles}" SelectedIndex="{Binding SelectedSourceIndex}">
                             </ListView>
                         </DockPanel>
 
