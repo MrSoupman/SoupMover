@@ -7,12 +7,11 @@ using System.Threading.Tasks;
 
 namespace SoupMover.ViewModels
 {
-    public class DestinationPathViewModel : IComparable
+    public class DestinationPathViewModel : ViewModelBase, IComparable
     {
         private readonly DestinationPath DestPath;
 
         public string Path => DestPath.Path;
-        public List<ModFile> modFiles => DestPath.GetFiles();
 
         public override string ToString()
         {
@@ -39,6 +38,10 @@ namespace SoupMover.ViewModels
         }
 
         public DestinationPath GetDestinationPath() => DestPath;
+
+        public List<ModFile> GetFiles() => DestPath.GetFiles();
+
+        public void AddFile(string file) => DestPath.Add(file);
 
     }
 }

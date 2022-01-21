@@ -32,5 +32,10 @@ namespace SoupMover.Models
             }
             throw new ArgumentException("Invalid object passed");
         }
+
+        public override string ToString()
+        {
+            return FileName;
+        }
     }
 }

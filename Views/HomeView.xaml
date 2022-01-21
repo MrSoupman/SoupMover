@@ -59,19 +59,18 @@
                         <Button CommandParameter="{Binding ElementName=SourceListView,Path=SelectedItems}" Command="{Binding RemoveFileCommand}" Margin="5 5 5 5" Name="btnRemoveFiles">Remove Files</Button>
                     </StackPanel>
 
-                    
-
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <Button Name="btnMoveTo" Margin="5 5 5 20" Content="-&gt;"/>
-                        <Button Name="btnMoveFrom" Margin="5 20 5 5" Content="&lt;-"/>
-                    </StackPanel>
                     <GroupBox Header="Destination" Grid.Column="4">
                         <DockPanel>
                             <TextBox DockPanel.Dock="Top"></TextBox>
-                            <ListView/>
+                            <ListView ItemsSource="{Binding QueuedFiles}"/>
                         </DockPanel>
-
                     </GroupBox>
+
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <Button CommandParameter="{Binding ElementName=SourceListView,Path=SelectedItems}" Command="{Binding MoveToDestCommand}" Name="btnMoveTo" Margin="5 5 5 20" Content="-&gt;"/>
+                        <Button Name="btnMoveFrom" Margin="5 20 5 5" Content="&lt;-"/>
+                    </StackPanel>
+                    
                 </Grid>
 
                 <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch"/>
@@ -128,7 +127,7 @@
                     <DockPanel>
                         <TextBox DockPanel.Dock="Top"></TextBox>
                         <TextBlock DockPanel.Dock="Top">Selected Directory:</TextBlock>
-                        <TextBlock DockPanel.Dock="Top" TextWrapping="WrapWithOverflow" Name="TextDirLbl">(No directory selected)</TextBlock>
+                        <TextBlock Text="{Binding SelectedDirectory}" DockPanel.Dock="Top" TextWrapping="WrapWithOverflow" Name="TextDirLbl"/>
                         <ListView SelectedIndex="{Binding SelectedDirectoryIndex}" ItemsSource="{Binding Directories}" DockPanel.Dock="Bottom">
                             
                         </ListView>
