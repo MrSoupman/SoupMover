@@ -19,8 +19,8 @@ namespace SoupMover.ViewModels
         private ObservableCollection<DestinationPathViewModel> _Directories { get; init; } //Stores the current directories with files to be moved in
         public IEnumerable<DestinationPathViewModel> Directories => _Directories;
 
-        private ObservableCollection<ModFileViewModel> _QueuedFiles { get; set; }
-        public IEnumerable<ModFileViewModel> QueuedFiles => _QueuedFiles;
+        private ObservableCollection<ModFileViewModel> _DestinationFiles { get; set; }
+        public IEnumerable<ModFileViewModel> DestinationFiles => _DestinationFiles;
 
         #endregion
 
@@ -51,12 +51,26 @@ namespace SoupMover.ViewModels
                 _SelectedDirectoryIndex = value;
                 SelectedDirectory = _Directories[SelectedDirectoryIndex].Path;
                 var files = _Directories[SelectedDirectoryIndex].GetFiles();
-                _QueuedFiles.Clear();
+                _DestinationFiles.Clear();
                 foreach (ModFile file in files)
                 {
-                    _QueuedFiles.Add(new ModFileViewModel(file));
+                    _DestinationFiles.Add(new ModFileViewModel(file));
                 }
                 OnPropertyChanged(nameof(SelectedDirectoryIndex));
+            }
+        }
+
+        private int _SelectedDestinationIndex;
+        public int SelectedDestinationIndex
+        {
+            get
+            {
+                return _SelectedDestinationIndex;
+            }
+            set
+            {
+                _SelectedDestinationIndex = value;
+                OnPropertyChanged(nameof(SelectedDestinationIndex));
             }
         }
 
@@ -84,16 +98,17 @@ namespace SoupMover.ViewModels
         public ICommand AddDirectoryCommand { get; }
         public ICommand RemoveDirectoryCommand { get; }
         public ICommand MoveToDestCommand { get; }
+        public ICommand MoveToSourceCommand { get; }
         #endregion
 
         #region Methods
         public void RefreshDestinationListView()
         {
             var files = _Directories[SelectedDirectoryIndex].GetFiles();
-            _QueuedFiles.Clear();
+            _DestinationFiles.Clear();
             foreach (ModFile file in files)
             {
-                _QueuedFiles.Add(new ModFileViewModel(file));
+                _DestinationFiles.Add(new ModFileViewModel(file));
             }
         }
         #endregion
@@ -101,8 +116,9 @@ namespace SoupMover.ViewModels
         {
             _SourceFiles = new ObservableCollection<string>();
             _Directories = new ObservableCollection<DestinationPathViewModel>();
-            _QueuedFiles = new ObservableCollection<ModFileViewModel>();
+            _DestinationFiles = new ObservableCollection<ModFileViewModel>();
             _SelectedSourceIndex = -1;
+            _SelectedDestinationIndex = -1;
             _SelectedDirectoryIndex = -1;
             _SelectedDirectory = "(No directory selected)";
 
@@ -112,6 +128,7 @@ namespace SoupMover.ViewModels
             AddDirectoryCommand = new AddDirectoryCommand(_Directories);
             RemoveDirectoryCommand = new RemoveDirectoryCommand(this, _Directories);
             MoveToDestCommand = new MoveToDestCommand(this, _Directories, _SourceFiles);
+            MoveToSourceCommand = new MoveToSourceCommand(this, _Directories, _SourceFiles);
         }
     }
 }

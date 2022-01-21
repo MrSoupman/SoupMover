@@ -33,6 +33,11 @@ namespace SoupMover.Models
             throw new ArgumentException("Invalid object passed");
         }
 
+        public override bool Equals(object obj)
+        {
+            return FileName.Equals(obj.ToString());
+        }
+
         public override string ToString()
         {
             return FileName;

@@ -62,13 +62,13 @@
                     <GroupBox Header="Destination" Grid.Column="4">
                         <DockPanel>
                             <TextBox DockPanel.Dock="Top"></TextBox>
-                            <ListView ItemsSource="{Binding QueuedFiles}"/>
+                            <ListView x:Name="DestinationListView" ItemsSource="{Binding DestinationFiles}" SelectedIndex="{Binding SelectedDestinationIndex}"/>
                         </DockPanel>
                     </GroupBox>
 
                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
                         <Button CommandParameter="{Binding ElementName=SourceListView,Path=SelectedItems}" Command="{Binding MoveToDestCommand}" Name="btnMoveTo" Margin="5 5 5 20" Content="-&gt;"/>
-                        <Button Name="btnMoveFrom" Margin="5 20 5 5" Content="&lt;-"/>
+                        <Button CommandParameter="{Binding ElementName=DestinationListView,Path=SelectedItems}" Command="{Binding MoveToSourceCommand}" Name="btnMoveFrom" Margin="5 20 5 5" Content="&lt;-"/>
                     </StackPanel>
                     
                 </Grid>
@@ -127,7 +127,7 @@
                     <DockPanel>
                         <TextBox DockPanel.Dock="Top"></TextBox>
                         <TextBlock DockPanel.Dock="Top">Selected Directory:</TextBlock>
-                        <TextBlock Text="{Binding SelectedDirectory}" DockPanel.Dock="Top" TextWrapping="WrapWithOverflow" Name="TextDirLbl"/>
+                        <TextBlock Text="{Binding SelectedDirectory}" DockPanel.Dock="Top" TextTrimming="CharacterEllipsis" Name="TextDirLbl"/>
                         <ListView SelectedIndex="{Binding SelectedDirectoryIndex}" ItemsSource="{Binding Directories}" DockPanel.Dock="Bottom">
                             
                         </ListView>

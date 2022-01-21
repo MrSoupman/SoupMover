@@ -43,5 +43,7 @@ namespace SoupMover.ViewModels
 
         public void AddFile(string file) => DestPath.Add(file);
 
+        public void RemoveFile(string file) => DestPath.Remove(file);
+
     }
 }
