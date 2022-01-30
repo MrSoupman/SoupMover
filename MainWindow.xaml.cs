@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32;
-using SoupMover.FileWindow;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

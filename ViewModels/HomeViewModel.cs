@@ -90,6 +90,34 @@ namespace SoupMover.ViewModels
                 OnPropertyChanged(nameof(SelectedDirectory));
             }
         }
+
+        private int _TotalCount;
+        public int TotalCount
+        {
+            get
+            {
+                return _TotalCount;
+            }
+            set
+            {
+                _TotalCount = value;
+                OnPropertyChanged(nameof(TotalCount));
+            }
+        }
+
+        private int _CurrentCount;
+        public int CurrentCount
+        {
+            get
+            {
+                return _CurrentCount;
+            }
+            set
+            {
+                _CurrentCount = value;
+                OnPropertyChanged(nameof(CurrentCount));
+            }
+        }
         #endregion
 
         #region ICommands
@@ -121,6 +149,8 @@ namespace SoupMover.ViewModels
             _SelectedDestinationIndex = -1;
             _SelectedDirectoryIndex = -1;
             _SelectedDirectory = "(No directory selected)";
+            _CurrentCount = 0;
+            _TotalCount = 0;
 
             //Commands
             AddFileCommand = new AddFileCommand(_SourceFiles);

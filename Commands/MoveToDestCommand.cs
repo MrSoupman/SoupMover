@@ -24,6 +24,7 @@ namespace SoupMover.Commands
                 {
                     SourceFiles.Remove(file);
                     Directories[HVM.SelectedDirectoryIndex].AddFile(file);
+                    HVM.TotalCount += 1;
                 }
                 HVM.RefreshDestinationListView();
             }

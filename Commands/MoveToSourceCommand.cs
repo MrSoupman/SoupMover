@@ -25,6 +25,7 @@ namespace SoupMover.Commands
                     if (!SourceFiles.Contains(file.FileName))
                         SourceFiles.Add(file.FileName);
                     Directories[HVM.SelectedDirectoryIndex].RemoveFile(file.FileName);
+                    HVM.TotalCount -= 1;
                 }
                 HVM.RefreshDestinationListView();
             }

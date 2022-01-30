@@ -141,7 +141,11 @@
                     <Button Command="{Binding RemoveDirectoryCommand}" Name="btnRemoveDirectory" Margin="5 0 5 5">Remove Directory</Button>
                     <Separator Margin="0 0 0 5"/>
                     <ProgressBar Name="pb" VerticalAlignment="Top" Height="15" Minimum="0" Maximum="100"/>
-                    <TextBlock Name="txtProg" FontSize="25" TextAlignment="Center">0/0</TextBlock>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock FontSize="25" TextAlignment="Center" Text="{Binding CurrentCount}"/>
+                        <TextBlock FontSize="25" TextAlignment="Center" Text="/"></TextBlock>
+                        <TextBlock FontSize="25" TextAlignment="Center" Text="{Binding TotalCount}"/>
+                    </StackPanel>
                     <Button Name="btnMove" Margin="5 0 5 5">Move</Button>
                     <Button Name="btnCancel" Margin="5 0 5 5">Cancel</Button>
                 </StackPanel>
