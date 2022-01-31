@@ -1,4 +1,5 @@
 ﻿using SoupMover.Services;
+using SoupMover.Stores;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,12 +12,14 @@ namespace SoupMover.Commands.FileCompareCommands
     {
         public override void Execute(object parameter)
         {
+            Store.GetResult(0);
             CloseModal();
         }
 
-        public YesCommand(ModalNavSvc modal)
+        public YesCommand(ModalNavSvc modal, DialogStore store)
         {
             Modal = modal;
+            Store = store;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using SoupMover.Commands;
 using SoupMover.Models;
 using SoupMover.Services;
+using SoupMover.Stores;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -142,7 +143,7 @@ namespace SoupMover.ViewModels
             }
         }
         #endregion
-        public HomeViewModel(ModalNavSvc modal)
+        public HomeViewModel(ModalNavSvc modal, DialogStore dialog)
         {
             _SourceFiles = new ObservableCollection<string>();
             _Directories = new ObservableCollection<DestinationPathViewModel>();
@@ -161,7 +162,7 @@ namespace SoupMover.ViewModels
             RemoveDirectoryCommand = new RemoveDirectoryCommand(this, _Directories);
             MoveToDestCommand = new MoveToDestCommand(this, _Directories, _SourceFiles);
             MoveToSourceCommand = new MoveToSourceCommand(this, _Directories, _SourceFiles);
-            MoveFilesCommand = new MoveFilesCommand(this, _Directories, modal);
+            MoveFilesCommand = new MoveFilesCommand(this, _Directories, modal, dialog);
         }
     }
 }
