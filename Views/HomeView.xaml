@@ -146,7 +146,7 @@
                         <TextBlock FontSize="25" TextAlignment="Center" Text="/"></TextBlock>
                         <TextBlock FontSize="25" TextAlignment="Center" Text="{Binding TotalCount}"/>
                     </StackPanel>
-                    <Button Name="btnMove" Margin="5 0 5 5">Move</Button>
+                    <Button Name="btnMove" Margin="5 0 5 5" Command="{Binding MoveFilesCommand}">Move</Button>
                     <Button Name="btnCancel" Margin="5 0 5 5">Cancel</Button>
                 </StackPanel>
             </Grid>

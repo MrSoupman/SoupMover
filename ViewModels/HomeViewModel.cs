@@ -1,5 +1,6 @@
 ﻿using SoupMover.Commands;
 using SoupMover.Models;
+using SoupMover.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -26,7 +27,7 @@ namespace SoupMover.ViewModels
 
         #region Public facing View Variables
         private int _SelectedSourceIndex;
-        public int SelectedSourceIndex 
+        public int SelectedSourceIndex
         {
             get
             {
@@ -127,6 +128,7 @@ namespace SoupMover.ViewModels
         public ICommand RemoveDirectoryCommand { get; }
         public ICommand MoveToDestCommand { get; }
         public ICommand MoveToSourceCommand { get; }
+        public ICommand MoveFilesCommand { get; }
         #endregion
 
         #region Methods
@@ -140,7 +142,7 @@ namespace SoupMover.ViewModels
             }
         }
         #endregion
-        public HomeViewModel()
+        public HomeViewModel(ModalNavSvc modal)
         {
             _SourceFiles = new ObservableCollection<string>();
             _Directories = new ObservableCollection<DestinationPathViewModel>();
@@ -159,6 +161,7 @@ namespace SoupMover.ViewModels
             RemoveDirectoryCommand = new RemoveDirectoryCommand(this, _Directories);
             MoveToDestCommand = new MoveToDestCommand(this, _Directories, _SourceFiles);
             MoveToSourceCommand = new MoveToSourceCommand(this, _Directories, _SourceFiles);
+            MoveFilesCommand = new MoveFilesCommand(this, _Directories, modal);
         }
     }
 }

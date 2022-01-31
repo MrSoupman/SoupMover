@@ -1,4 +1,5 @@
-﻿using SoupMover.Stores;
+﻿using SoupMover.Services;
+using SoupMover.Stores;
 using SoupMover.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -17,12 +18,13 @@ namespace SoupMover
     {
         //TODO: https://stackoverflow.com/questions/793100/globally-catch-exceptions-in-a-wpf-application
         private readonly NavStore nav;
+        private readonly ModalNavStore modal;
         protected override void OnStartup(StartupEventArgs e)
         {
-            nav.CurrentVM = new HomeViewModel();
+            nav.CurrentVM = new HomeViewModel(new ModalNavSvc(modal, CreateFileCompareViewModel));
             MainWindow = new MainWindow()
             {
-                DataContext = new MainViewModel(nav)
+                DataContext = new MainViewModel(nav, modal)
             };
             MainWindow.Show();
             base.OnStartup(e);
@@ -32,6 +34,12 @@ namespace SoupMover
         public App()
         {
             nav = new NavStore();
+            modal = new ModalNavStore();
+        }
+
+        private FileCompareViewModel CreateFileCompareViewModel()
+        {
+            return new FileCompareViewModel(new ModalNavSvc(modal, CreateFileCompareViewModel));
         }
     }
 }

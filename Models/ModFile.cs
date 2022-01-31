@@ -15,8 +15,6 @@ namespace SoupMover.Models
 
         public string NewName { get; set; } //The name it should be renamed to upon being moved
 
-        //public bool IsFile; //Whether this entry is a file or not
-
         public bool OverwriteExist { get; set; } //Whether this entry is marked to be overwritten
 
         public bool ToSkip { get; set; } //Whether this entry specifically needs to be skipped
