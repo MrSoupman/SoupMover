@@ -140,7 +140,7 @@
                     <Button Command="{Binding AddDirectoryCommand}" Name="btnAddDirectory" Margin="5 5 5 5">Add Directory</Button>
                     <Button Command="{Binding RemoveDirectoryCommand}" Name="btnRemoveDirectory" Margin="5 0 5 5">Remove Directory</Button>
                     <Separator Margin="0 0 0 5"/>
-                    <ProgressBar Name="pb" VerticalAlignment="Top" Height="15" Minimum="0" Maximum="100"/>
+                    <ProgressBar VerticalAlignment="Top" Height="15" Minimum="0" Maximum="100" Value="{Binding Progress}"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <TextBlock FontSize="25" TextAlignment="Center" Text="{Binding CurrentCount}"/>
                         <TextBlock FontSize="25" TextAlignment="Center" Text="/"></TextBlock>

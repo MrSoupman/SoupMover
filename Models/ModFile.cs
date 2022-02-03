@@ -17,8 +17,6 @@ namespace SoupMover.Models
 
         public bool OverwriteExist { get; set; } //Whether this entry is marked to be overwritten
 
-        public bool ToSkip { get; set; } //Whether this entry specifically needs to be skipped
-
         public ModFile(string FileName)
         {
             this.FileName = FileName;

@@ -120,6 +120,19 @@ namespace SoupMover.ViewModels
                 OnPropertyChanged(nameof(CurrentCount));
             }
         }
+        private int _Progress;
+        public int Progress
+        {
+            get
+            {
+                return _Progress;
+            }
+            set
+            {
+                _Progress = value;
+                OnPropertyChanged(nameof(Progress));
+            }
+        }
         #endregion
 
         #region ICommands

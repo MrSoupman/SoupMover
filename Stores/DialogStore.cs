@@ -13,5 +13,9 @@ namespace SoupMover.Stores
         {
             FileCompareResult?.Invoke(Result);
         }
+
+        
+        public string Title { get; set; }
+        public string Message { get; set; }
     }
 }

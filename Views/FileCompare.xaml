@@ -15,28 +15,28 @@
             <RowDefinition Height="0.40*"/>
         </Grid.RowDefinitions>
         <DockPanel Grid.Row="0" LastChildFill="False">
-            <Image Name="sourceFileIcon" DockPanel.Dock="Left" Source="/Images/Missing.png" Margin="10 0 0 0" Stretch="None"/>
+            <Image Name="sourceFileIcon" DockPanel.Dock="Left" Source="{Binding SourceFileIcon}" Margin="10 0 0 0" Stretch="None"/>
             <DockPanel LastChildFill="False" DockPanel.Dock="Left" Margin="10 10 0 0" Width="170" >
-                <TextBlock DockPanel.Dock="Top" TextWrapping="WrapWithOverflow" Name="sourceFileName">File name</TextBlock>
-                <TextBlock DockPanel.Dock="Bottom" Name="sourceFileSize">File Size</TextBlock>
+                <TextBlock DockPanel.Dock="Top" TextWrapping="WrapWithOverflow" Name="sourceFileName" Text="{Binding SourceFileName}"/>
+                <TextBlock DockPanel.Dock="Bottom" Name="sourceFileSize" Text="{Binding SourceFileSize}"/>
             </DockPanel>
             <DockPanel LastChildFill="False" DockPanel.Dock="Right" Margin="0 10 10 0">
 
-                <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" Name="sourceDirectory">Source</TextBlock>
-                <TextBlock DockPanel.Dock="Bottom" Name="sourceCreated">Date Created</TextBlock>
+                <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" Name="sourceDirectory" Text="{Binding SourceDirectoryName}"/>
+                <TextBlock DockPanel.Dock="Bottom" Name="sourceCreated" Text="{Binding SourceCreated}"/>
             </DockPanel>
         </DockPanel>
         <Separator Grid.Row="1" HorizontalAlignment="Stretch"/>
         <DockPanel Grid.Row="2" LastChildFill="False">
-            <Image Name="destinationFileIcon" DockPanel.Dock="Left" Source="/Images/Missing.png" Margin="10 0 0 0" Stretch="None"/>
+            <Image Name="destinationFileIcon" DockPanel.Dock="Left" Source="{Binding DestinationFileIcon}" Margin="10 0 0 0" Stretch="None"/>
             <DockPanel LastChildFill="False" DockPanel.Dock="Left" Margin="10 10 0 0" Width="170" >
-                <TextBlock DockPanel.Dock="Top" TextWrapping="WrapWithOverflow" Name="destinationFileName">File name</TextBlock>
-                <TextBlock DockPanel.Dock="Bottom" Name="destinationFileSize">File Size</TextBlock>
+                <TextBlock DockPanel.Dock="Top" TextWrapping="WrapWithOverflow" Name="destinationFileName" Text="{Binding DestinationFileName}"></TextBlock>
+                <TextBlock DockPanel.Dock="Bottom" Name="destinationFileSize" Text="{Binding DestinationFileSize}"/>
             </DockPanel>
             <DockPanel LastChildFill="False" DockPanel.Dock="Right" Margin="0 10 10 0">
 
-                <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" Name="destinationDirectory">Source</TextBlock>
-                <TextBlock DockPanel.Dock="Bottom" Name="destinationCreated">Date Created</TextBlock>
+                <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" Name="destinationDirectory" Text="{Binding DestinationDirectoryName}"/>
+                <TextBlock DockPanel.Dock="Bottom" Name="destinationCreated" Text="{Binding DestinationCreated}"/>
             </DockPanel>
         </DockPanel>
         <Separator Grid.Row="3" HorizontalAlignment="Stretch"/>
@@ -52,11 +52,11 @@
             </Grid.ColumnDefinitions>
             <TextBlock TextAlignment="Center" VerticalAlignment="Center" Text="Overwrite&#x0a; File:" FontSize="11"></TextBlock>
             <Button Grid.Column="1" Command="{Binding YesCommand}">Yes</Button>
-            <Button Grid.Column="2">Yes to all</Button>
-            <Button Grid.Column="3">No</Button>
-            <Button Grid.Column="4">No to all</Button>
-            <Button Grid.Column="5">Keep Both</Button>
-            <Button Grid.Column="6">Cancel</Button>
+            <Button Grid.Column="2" Command="{Binding YesToAllCommand}">Yes to all</Button>
+            <Button Grid.Column="3" Command="{Binding NoCommand}">No</Button>
+            <Button Grid.Column="4" Command="{Binding NoToAllCommand}">No to all</Button>
+            <Button Grid.Column="5" Command="{Binding KeepBothCommand}">Keep Both</Button>
+            <Button Grid.Column="6" Command="{Binding CancelCommand}">Cancel</Button>
         </Grid>
     </Grid>
 </UserControl>
