@@ -39,8 +39,7 @@ namespace SoupMover.Commands
 
         public override bool CanExecute(object parameter)
         {
-            //return HVM.TotalCount > 0;
-            return true;
+            return HVM.TotalCount > 0;
         }
 
         public MoveFilesCommand(HomeViewModel HVM, ObservableCollection<DestinationPathViewModel> Directories, ModalNavSvc modal, DialogStore dialog)

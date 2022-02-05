@@ -22,7 +22,7 @@ namespace SoupMover
         private readonly DialogStore dialog;
         protected override void OnStartup(StartupEventArgs e)
         {
-            nav.CurrentVM = new HomeViewModel(new ModalNavSvc(modal, CreateFileCompareViewModel), dialog);
+            nav.CurrentVM = new HomeViewModel(new ModalNavSvc(modal, CreateFileCompareViewModel), dialog, new PreviewViewModel());
             MainWindow = new MainWindow()
             {
                 DataContext = new MainViewModel(nav, modal)

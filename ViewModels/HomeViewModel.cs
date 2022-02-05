@@ -37,6 +37,7 @@ namespace SoupMover.ViewModels
             set
             {
                 _SelectedSourceIndex = value;
+                SelectedFile = _SourceFiles[value];
                 OnPropertyChanged(nameof(SelectedSourceIndex));
             }
         }
@@ -72,6 +73,7 @@ namespace SoupMover.ViewModels
             set
             {
                 _SelectedDestinationIndex = value;
+                SelectedFile = _DestinationFiles[value].ToString();
                 OnPropertyChanged(nameof(SelectedDestinationIndex));
             }
         }
@@ -133,6 +135,35 @@ namespace SoupMover.ViewModels
                 OnPropertyChanged(nameof(Progress));
             }
         }
+
+        private PreviewViewModel _Preview;
+        public PreviewViewModel Preview
+        {
+            get
+            {
+                return _Preview;
+            }
+            set
+            {
+                _Preview = value;
+                OnPropertyChanged(nameof(Preview));
+            }
+        }
+
+        private string _SelectedFile;
+        public string SelectedFile
+        {
+            get
+            {
+                return _SelectedFile;
+            }
+            set
+            {
+                _SelectedFile = value;
+                OnPropertyChanged(nameof(SelectedFile));
+            }
+        }
+
         #endregion
 
         #region ICommands
@@ -156,7 +187,7 @@ namespace SoupMover.ViewModels
             }
         }
         #endregion
-        public HomeViewModel(ModalNavSvc modal, DialogStore dialog)
+        public HomeViewModel(ModalNavSvc modal, DialogStore dialog, PreviewViewModel Preview)
         {
             _SourceFiles = new ObservableCollection<string>();
             _Directories = new ObservableCollection<DestinationPathViewModel>();
@@ -167,6 +198,8 @@ namespace SoupMover.ViewModels
             _SelectedDirectory = "(No directory selected)";
             _CurrentCount = 0;
             _TotalCount = 0;
+            this.Preview = Preview;
+            this.Preview.SetHomeViewModel(this);
 
             //Commands
             AddFileCommand = new AddFileCommand(_SourceFiles);
