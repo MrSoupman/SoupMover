@@ -37,7 +37,10 @@ namespace SoupMover.ViewModels
             set
             {
                 _SelectedSourceIndex = value;
-                SelectedFile = _SourceFiles[value];
+                if (value >= 0)
+                    SelectedFile = _SourceFiles[value];
+                else
+                    SelectedFile = "";
                 OnPropertyChanged(nameof(SelectedSourceIndex));
             }
         }
@@ -73,7 +76,10 @@ namespace SoupMover.ViewModels
             set
             {
                 _SelectedDestinationIndex = value;
-                SelectedFile = _DestinationFiles[value].ToString();
+                if(value >= 0)
+                    SelectedFile = _DestinationFiles[value].ToString();
+                else
+                    SelectedFile = "";
                 OnPropertyChanged(nameof(SelectedDestinationIndex));
             }
         }
