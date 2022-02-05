@@ -121,7 +121,7 @@
                         <TextBlock FontSize="25" TextAlignment="Center" Text="{Binding TotalCount}"/>
                     </StackPanel>
                     <Button Name="btnMove" Margin="5 0 5 5" Command="{Binding MoveFilesCommand}">Move</Button>
-                    <Button Name="btnCancel" Margin="5 0 5 5">Cancel</Button>
+                    <Button Name="btnCancel" Margin="5 0 5 5" Command="{Binding CancelCommand}">Cancel</Button>
                 </StackPanel>
             </Grid>
         </Grid>

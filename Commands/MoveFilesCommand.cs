@@ -30,6 +30,7 @@ namespace SoupMover.Commands
             var res = MessageBox.Show("Move files?", "Confirm", MessageBoxButton.OKCancel, MessageBoxImage.Question);
             if (res == MessageBoxResult.OK)
             {
+                HVM.IsMoving = true;
                 worker.RunWorkerAsync();
             }
             
@@ -57,7 +58,15 @@ namespace SoupMover.Commands
             };
             worker.DoWork += Worker_DoWork;
             worker.ProgressChanged += Worker_ProgressChanged;
+            worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
             
+        }
+
+        private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            HVM.IsMoving = false;
+            HVM.CancelMoving = false;
+            HVM.TotalCount = 0;
         }
 
         private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -68,6 +77,7 @@ namespace SoupMover.Commands
         private async void Worker_DoWork(object sender, DoWorkEventArgs e)
         {
             bool NoToAll = false, YesToAll = false;
+            HVM.CurrentCount = 0;
             foreach (DestinationPathViewModel path in Directories)
             {
                 List<ModFile> files = path.GetFiles();
@@ -142,6 +152,15 @@ namespace SoupMover.Commands
         {
             if (e.PropertyName == nameof(HomeViewModel.TotalCount))
                 OnCanExecutedChanged();
+            else if (e.PropertyName == nameof(HomeViewModel.CancelMoving)) //The only time this fires is when cancel is used (and when we turn it off)
+            {
+                if (worker.IsBusy)
+                { 
+                    worker.CancelAsync();
+                    
+                }
+
+            }
         }
     }
 }

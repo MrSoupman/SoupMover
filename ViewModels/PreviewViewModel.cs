@@ -316,7 +316,7 @@ namespace SoupMover.ViewModels
                             TextVisible = true;
                             Text = File.ReadAllText(HVM.SelectedFile);
                         }
-                        catch (Exception exc)
+                        catch (Exception)
                         {
                             ErrorVisible = true;
                         }

@@ -170,6 +170,34 @@ namespace SoupMover.ViewModels
             }
         }
 
+        private bool _IsMoving;
+        public bool IsMoving
+        {
+            get
+            {
+                return _IsMoving;
+            }
+            set
+            {
+                _IsMoving = value;
+                OnPropertyChanged(nameof(IsMoving));
+            }
+        }
+
+        private bool _CancelMoving;
+        public bool CancelMoving
+        {
+            get
+            {
+                return _CancelMoving;
+            }
+            set
+            {
+                _CancelMoving = value;
+                OnPropertyChanged(nameof(CancelMoving));
+            }
+        }
+
         #endregion
 
         #region ICommands
@@ -180,6 +208,7 @@ namespace SoupMover.ViewModels
         public ICommand MoveToDestCommand { get; }
         public ICommand MoveToSourceCommand { get; }
         public ICommand MoveFilesCommand { get; }
+        public ICommand CancelCommand { get; }
         #endregion
 
         #region Methods
@@ -215,6 +244,7 @@ namespace SoupMover.ViewModels
             MoveToDestCommand = new MoveToDestCommand(this, _Directories, _SourceFiles);
             MoveToSourceCommand = new MoveToSourceCommand(this, _Directories, _SourceFiles);
             MoveFilesCommand = new MoveFilesCommand(this, _Directories, modal, dialog);
+            CancelCommand = new CancelCommand(this);
         }
     }
 }
