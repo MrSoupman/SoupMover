@@ -14,13 +14,13 @@
             <local:BoolToVisibilityConverter x:Key="BoolToHiddenConverter" TrueValue="Visible" FalseValue="Hidden" />
         </Grid.Resources>
         <Image Name="imgPreview" Visibility="{Binding ImageVisible, Converter={StaticResource BooleanToVisibilityConverter}}" Source="{Binding Image}"/>
-        <Image Name ="gifPreview" Visibility="{Binding GifVisible, Converter={StaticResource BooleanToVisibilityConverter}}" gif:ImageBehavior.RepeatBehavior="0x" gif:ImageBehavior.AnimatedSource="{Binding Gif}"/>
+        <Image Name ="gifPreview" Visibility="{Binding GifVisible, Converter={StaticResource BooleanToVisibilityConverter}}" gif:ImageBehavior.RepeatBehavior="Forever" gif:ImageBehavior.AnimatedSource="{Binding Gif}"/>
         <Grid Name="previewGrid" Visibility="{Binding PlayerVisible, Converter={StaticResource BoolToHiddenConverter}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="0.1*"/>
             </Grid.RowDefinitions>
-            <vlc:VideoView Name="vidPreview" MediaPlayer="{Binding Media}" Loaded="vidPreview_Loaded"/>
+            <vlc:VideoView Name="vidPreview" MediaPlayer="{Binding Media}"/>
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="0.1*"/>
@@ -29,18 +29,19 @@
                     <ColumnDefinition Width="0.1*"/>
                     <ColumnDefinition Width="0.7*"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Name="btnPlay">
+                <Button Command="{Binding PlayCommand}" Grid.Column="0" Name="btnPlay">
                     <Image Source="../Images/play.png"/>
                 </Button>
-                <Button Grid.Column="1" Name="btnPause">
+                <Button Command="{Binding PauseCommand}" Grid.Column="1" Name="btnPause">
                     <Image Source="../Images/pause.png"/>
                 </Button>
-                <Button Grid.Column="2" Name="btnMute">
-                    <Image Name="imgAudio" Source="../Images/volume-up.png"/>
+                <Button Command="{Binding VolumeCommand}" Grid.Column="2" Name="btnMute">
+                    <Image Name="imgAudio" Source="{Binding VolumeImage}"/>
                 </Button>
                 <TextBlock Grid.Column="3" TextAlignment="Center" Name ="lblTime" VerticalAlignment="Center" Text="{Binding TimeLabel}"/>
                 <Slider Name="slider" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="4"
-                        Value="{Binding Value,Mode=TwoWay}" Minimum="{Binding Minimum}" Maximum="{Binding Maximum}" Thumb.DragCompleted="slider_DragCompleted"/>
+                        Value="{Binding Value,Mode=TwoWay}" Minimum="{Binding Minimum}" Maximum="{Binding Maximum}" 
+                        Thumb.DragCompleted="slider_DragCompleted" Thumb.DragStarted="slider_DragStarted"/>
             </Grid>
         </Grid>
         <ScrollViewer Name="txtPreviewScroller" Visibility="{Binding TextVisible, Converter={StaticResource BooleanToVisibilityConverter}}">

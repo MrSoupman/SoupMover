@@ -29,17 +29,18 @@ namespace SoupMover.Views
 
         private void slider_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
         {
+            PVM.IsDragging = false;
             PVM.SetMediaTime();
-        }
-
-        private void vidPreview_Loaded(object sender, RoutedEventArgs e)
-        {
-            PVM.InitVidPreview();
         }
 
         private void Grid_Loaded(object sender, RoutedEventArgs e)
         {
             PVM = this.DataContext as PreviewViewModel;
+        }
+
+        private void slider_DragStarted(object sender, System.Windows.Controls.Primitives.DragStartedEventArgs e)
+        {
+            PVM.IsDragging = true;
         }
     }
 }

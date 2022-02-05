@@ -1,5 +1,6 @@
 ﻿using LibVLCSharp.Shared;
 using MimeTypes;
+using SoupMover.Commands.PreviewCommands;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using WpfAnimatedGif;
@@ -19,6 +21,7 @@ namespace SoupMover.ViewModels
         private readonly DispatcherTimer Time;
         private LibVLC Lib;
         private MediaPlayer _Media;
+        public bool IsDragging { get; set; }
         public MediaPlayer Media
         {
             get
@@ -29,6 +32,20 @@ namespace SoupMover.ViewModels
             {
                 _Media = value;
                 OnPropertyChanged(nameof(Media));
+            }
+        }
+
+        private string _VolumeImage;
+        public string VolumeImage
+        {
+            get
+            {
+                return _VolumeImage;
+            }
+            set
+            {
+                _VolumeImage = value;
+                OnPropertyChanged(nameof(VolumeImage));
             }
         }
 
@@ -180,6 +197,7 @@ namespace SoupMover.ViewModels
             {
                 _Value = value;
                 OnPropertyChanged(nameof(Value));
+                TimeLabel = TimeSpan.FromSeconds(Value).ToString(@"hh\:mm\:ss");
             }
         }
 
@@ -192,23 +210,44 @@ namespace SoupMover.ViewModels
             }
             set
             {
-                _TimeLabel = TimeSpan.FromSeconds(Value).ToString(@"hh\:mm\:ss");
+                _TimeLabel = value;
                 OnPropertyChanged(nameof(TimeLabel));
             }
         }
         #endregion
+
+        public ICommand PlayCommand { get; set; }
+        public ICommand PauseCommand { get; set; }
+        public ICommand VolumeCommand { get; set; }
+
         public PreviewViewModel()
         {
             HidePreviews();
+            Image = @"../Images/Missing.png";
+            Gif = @"../Images/Missing.png";
+            VolumeImage = @"../Images/volume-up.png";
             Time = new DispatcherTimer();
+            Time.Interval = TimeSpan.FromSeconds(1);
             Time.Tick += Time_Tick;
+
+            Core.Initialize();
+            Lib = new LibVLC();
+            Media = new MediaPlayer(Lib);
+            PlayCommand = new PlayCommand(Media);
+            PauseCommand = new PauseCommand(Media);
+            VolumeCommand = new VolumeCommand(this, Media);
         }
 
         private void Time_Tick(object sender, EventArgs e)
         {
-            Minimum = 0;
-            Maximum = Media.Length / 1000;
-            Value = Media.Time / 1000;
+            if (!IsDragging)
+            {
+                Minimum = 0;
+                Maximum = Media.Length / 1000; //The length of the media file in seconds
+                //TODO: Media has a built in timechanged event; maybe try to use that instead of DispatcherTimer?
+                Value = Media.Time / 1000;
+            }
+            
         }
 
         private void HidePreviews()
@@ -219,13 +258,6 @@ namespace SoupMover.ViewModels
             TextVisible = false;
             if (Media != null)
                 Media.Stop();
-        }
-
-        public void InitVidPreview()
-        {
-            Core.Initialize();
-            Lib = new LibVLC();
-            Media = new MediaPlayer(Lib);
         }
 
         public void SetMediaTime()
@@ -244,7 +276,8 @@ namespace SoupMover.ViewModels
         {
             if (e.PropertyName == nameof(HomeViewModel.SelectedFile))
             {
-                
+                if (HVM.SelectedFile == "") //In event we just removed a file(s)
+                    HidePreviews();
                 if (File.Exists(HVM.SelectedFile))
                 {
                     HidePreviews();
@@ -266,10 +299,14 @@ namespace SoupMover.ViewModels
                     else if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("video") || MimeTypeMap.GetMimeType(uri.ToString()).Contains("audio"))
                     {
                         PlayerVisible = true;
-                        //previewGrid.BringIntoView();
+                        var media = new Media(Lib, uri);
+                        Maximum = media.Duration / 1000;
+                        Value = 0;
+                        TimeLabel = TimeSpan.FromSeconds(0).ToString(@"hh\:mm\:ss");
                         Time.Start();
-                        Media.Play(new Media(Lib, uri));
                         Media.Volume = 100;
+                        Media.Play(media);
+                        
 
                     }
                     else if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("text"))
