@@ -182,6 +182,11 @@ namespace SoupMover.ViewModels
         public FileCompareViewModel(ModalNavSvc modal, DialogStore store)
         {
             YesCommand = new YesCommand(modal, store);
+            YesToAllCommand = new YesToAllCommand(modal, store);
+            NoCommand = new NoCommand(modal, store);
+            NoToAllCommand = new NoToAllCommand(modal, store);
+            KeepBothCommand = new KeepBothCommand(modal, store);
+            CancelCommand = new CancelCommand(modal, store);
             //ignore this jank way i decided to do this
             string SourceFile = store.Title;
             string DestinationFile = store.Message;

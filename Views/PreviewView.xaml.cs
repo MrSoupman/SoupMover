@@ -24,7 +24,7 @@ namespace SoupMover.Views
         private PreviewViewModel PVM;
         public PreviewView()
         {
-            InitializeComponent();   
+            InitializeComponent(); 
         }
 
         private void slider_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)

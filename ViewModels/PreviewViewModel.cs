@@ -35,6 +35,7 @@ namespace SoupMover.ViewModels
             }
         }
 
+        //Leaving this as a string because it doesn't need to be moved
         private string _VolumeImage;
         public string VolumeImage
         {
@@ -49,8 +50,8 @@ namespace SoupMover.ViewModels
             }
         }
 
-        private string _Gif;
-        public string Gif
+        private BitmapImage _Gif;
+        public BitmapImage Gif
         {
             get 
             {
@@ -63,8 +64,8 @@ namespace SoupMover.ViewModels
             }
         }
 
-        private string _Image;
-        public string Image
+        private BitmapImage _Image;
+        public BitmapImage Image
         {
             get
             {
@@ -223,8 +224,8 @@ namespace SoupMover.ViewModels
         public PreviewViewModel()
         {
             HidePreviews();
-            Image = @"../Images/Missing.png";
-            Gif = @"../Images/Missing.png";
+            //Image = new BitmapImage();
+            //Gif = new BitmapImage();
             VolumeImage = @"../Images/volume-up.png";
             Time = new DispatcherTimer();
             Time.Interval = TimeSpan.FromSeconds(1);
@@ -249,7 +250,19 @@ namespace SoupMover.ViewModels
             }
             
         }
-
+        private BitmapImage LoadBitmapImage(string fileName)
+        {
+            using (var stream = new FileStream(fileName, FileMode.Open))
+            {
+                var bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.StreamSource = stream;
+                bitmapImage.EndInit();
+                bitmapImage.Freeze(); // just in case you want to load the image in another thread
+                return bitmapImage;
+            }
+        }
         private void HidePreviews()
         {
             ImageVisible = false;
@@ -287,12 +300,12 @@ namespace SoupMover.ViewModels
                         if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("gif"))
                         {
                             GifVisible = true;
-                            Gif = HVM.SelectedFile;
+                            Gif = LoadBitmapImage(HVM.SelectedFile);
                         }
                         else
                         {
                             ImageVisible = true;
-                            Image = HVM.SelectedFile;
+                            Image = LoadBitmapImage(HVM.SelectedFile);
                         }
 
                     }
