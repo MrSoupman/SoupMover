@@ -55,12 +55,15 @@ namespace SoupMover.ViewModels
             set
             {
                 _SelectedDirectoryIndex = value;
-                SelectedDirectory = _Directories[SelectedDirectoryIndex].Path;
-                var files = _Directories[SelectedDirectoryIndex].GetFiles();
-                _DestinationFiles.Clear();
-                foreach (ModFile file in files)
+                if (value >= 0)
                 {
-                    _DestinationFiles.Add(new ModFileViewModel(file));
+                    SelectedDirectory = _Directories[SelectedDirectoryIndex].Path;
+                    var files = _Directories[SelectedDirectoryIndex].GetFiles();
+                    _DestinationFiles.Clear();
+                    foreach (ModFile file in files)
+                    {
+                        _DestinationFiles.Add(new ModFileViewModel(file));
+                    }
                 }
                 OnPropertyChanged(nameof(SelectedDirectoryIndex));
             }
@@ -220,6 +223,23 @@ namespace SoupMover.ViewModels
             {
                 _DestinationFiles.Add(new ModFileViewModel(file));
             }
+        }
+
+        public void AddToSourceFiles(string file)
+        {
+            _SourceFiles.Add(file);
+        }
+
+        public void ClearDestinationListView()
+        {
+            SelectedDestinationIndex = -1;
+            _DestinationFiles.Clear();
+        }
+        public void ResetIndices()
+        {
+            SelectedDestinationIndex = -1;
+            SelectedDirectoryIndex = -1;
+            SelectedSourceIndex = -1;
         }
         #endregion
         public HomeViewModel(ModalNavSvc modal, DialogStore dialog, PreviewViewModel Preview)

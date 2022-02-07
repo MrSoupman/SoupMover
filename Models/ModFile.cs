@@ -11,11 +11,12 @@ namespace SoupMover.Models
     /// </summary>
     public class ModFile : IComparable
     {
-        public readonly string FileName; //The original file name that currently exists on disk
+        public string FileName { get; init; } //The original file name that currently exists on disk
 
         public string NewName { get; set; } //The name it should be renamed to upon being moved
 
         public bool OverwriteExist { get; set; } //Whether this entry is marked to be overwritten
+        public bool ToSkip { get; set; } //Whether this entry is marked to not be moved
 
         public ModFile(string FileName)
         {
