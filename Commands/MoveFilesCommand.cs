@@ -32,6 +32,7 @@ namespace SoupMover.Commands
             var res = MessageBox.Show("Move files?", "Confirm", MessageBoxButton.OKCancel, MessageBoxImage.Question);
             if (res == MessageBoxResult.OK)
             {
+                HVM.IsMoving = true;
                 //Prep work - Checking that the source file exists, and does not exist in the directory it should be moved to
                 HVM.ClearDestinationListView();
                 HVM.ResetIndices();

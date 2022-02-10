@@ -19,8 +19,11 @@ namespace SoupMover.Commands
             if (result == System.Windows.Forms.DialogResult.OK && dialog.SelectedPath.Length > 0)
             {
                 DestinationPathViewModel DestPathVM = new DestinationPathViewModel(new DestinationPath(dialog.SelectedPath));
-                if(!Directories.Contains(DestPathVM))
+                if (!Directories.Contains(DestPathVM))
+                { 
                     Directories.Add(DestPathVM);
+                    
+                }
             }
         }
 

@@ -9,7 +9,7 @@ namespace SoupMover.ViewModels
 {
     public class DestinationPathViewModel : ViewModelBase, IComparable
     {
-        private readonly DestinationPath DestPath;
+        public DestinationPath DestPath { get; init; }
 
         public string Path => DestPath.Path;
 

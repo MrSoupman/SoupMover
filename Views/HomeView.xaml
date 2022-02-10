@@ -14,8 +14,8 @@
                 <MenuItem Header="_Add Folders Recursively"/>
                 <MenuItem Header="_Add Files Recursively"/>
                 <Separator/>
-                <MenuItem Header="_Load"/>
-                <MenuItem Header="_Save"/>
+                <MenuItem Header="_Load" Command="{Binding LoadCommand}"/>
+                <MenuItem Header="_Save" Command="{Binding SaveCommand}"/>
                 <Separator/>
                 <MenuItem Header="_Exit"/>
             </MenuItem>

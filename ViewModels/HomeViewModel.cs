@@ -212,6 +212,8 @@ namespace SoupMover.ViewModels
         public ICommand MoveToSourceCommand { get; }
         public ICommand MoveFilesCommand { get; }
         public ICommand CancelCommand { get; }
+        public ICommand SaveCommand { get; }
+        public ICommand LoadCommand { get; }
         #endregion
 
         #region Methods
@@ -241,6 +243,12 @@ namespace SoupMover.ViewModels
             SelectedDirectoryIndex = -1;
             SelectedSourceIndex = -1;
         }
+
+        public void AddToDirectories(DestinationPathViewModel DestPath)
+        {
+            _Directories.Add(DestPath);
+        }
+
         #endregion
         public HomeViewModel(ModalNavSvc modal, DialogStore dialog, PreviewViewModel Preview)
         {
@@ -265,6 +273,8 @@ namespace SoupMover.ViewModels
             MoveToSourceCommand = new MoveToSourceCommand(this, _Directories, _SourceFiles);
             MoveFilesCommand = new MoveFilesCommand(this, _Directories, modal, dialog);
             CancelCommand = new CancelCommand(this);
+            SaveCommand = new SaveCommand(_SourceFiles, _Directories);
+            LoadCommand = new LoadCommand(this);
         }
     }
 }
