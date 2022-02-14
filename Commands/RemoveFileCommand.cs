@@ -10,7 +10,6 @@ namespace SoupMover.Commands
 {
     public class RemoveFileCommand : BaseCommand
     {
-        private readonly ObservableCollection<string> SourceFiles;
         private readonly HomeViewModel HVM;
         public override void Execute(object parameter)
         {
@@ -21,7 +20,7 @@ namespace SoupMover.Commands
                 HVM.SelectedSourceIndex = -1;
                 foreach (string file in test)
                 {
-                    SourceFiles.Remove(file);
+                    HVM.RemoveFromSourceFiles(file);
                 }
             }
         }
@@ -31,9 +30,8 @@ namespace SoupMover.Commands
             return HVM.SelectedSourceIndex > -1 && parameter != null;
         }
 
-        public RemoveFileCommand(ObservableCollection<string> SourceFiles, HomeViewModel HVM)
+        public RemoveFileCommand(HomeViewModel HVM)
         {
-            this.SourceFiles = SourceFiles;
             this.HVM = HVM;
             this.HVM.PropertyChanged += HVM_PropertyChanged;
         }

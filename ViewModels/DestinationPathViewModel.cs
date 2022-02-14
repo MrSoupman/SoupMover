@@ -22,7 +22,7 @@ namespace SoupMover.ViewModels
         {
             if (obj != null)
             {
-                return DestPath.Path.CompareTo((obj as DestinationPath).Path);
+                return Path.CompareTo(obj.ToString());
             }
             throw new ArgumentException("Null Object");
         }

@@ -227,9 +227,65 @@ namespace SoupMover.ViewModels
             }
         }
 
+        public bool SourceFilesContains(string file) => _SourceFiles.Contains(file);
+
         public void AddToSourceFiles(string file)
         {
-            _SourceFiles.Add(file);
+            if(!_SourceFiles.Contains(file))
+                _SourceFiles.Add(file);
+        }
+
+        public void RemoveFromSourceFiles(int index)
+        {
+            if (index > -1)
+                _SourceFiles.RemoveAt(index);
+        }
+
+        public void RemoveFromSourceFiles(string file)
+        {
+            RemoveFromSourceFiles(_SourceFiles.IndexOf(file));
+        }
+
+        public void AddToDirectories(DestinationPathViewModel DestPath)
+        {
+            if (!_Directories.Contains(DestPath))
+            {
+                _Directories.Add(DestPath);
+                SortDirectories();
+            }
+               
+        }
+
+        private void SortDirectories()
+        {
+
+            ObservableCollection<DestinationPathViewModel> temp;
+            var ordered = _Directories.OrderBy(p => p).AsEnumerable();
+            temp = new ObservableCollection<DestinationPathViewModel>(ordered);
+            _Directories.Clear();
+            foreach (DestinationPathViewModel j in temp) 
+                _Directories.Add(j);
+        }
+
+        public void RemoveFromDirectories(int index)
+        {
+            if(index > -1)
+                _Directories.RemoveAt(index);
+        }
+
+        public DestinationPathViewModel GetDirectory(int index)
+        {
+            return _Directories[index];
+        }
+
+        public void AddToDestination(string file)
+        {
+            _Directories[SelectedDirectoryIndex].AddFile(file);
+        }
+
+        public void RemoveFromDestination(string file)
+        {
+            _Directories[SelectedDirectoryIndex].RemoveFile(file);
         }
 
         public void ClearDestinationListView()
@@ -244,10 +300,7 @@ namespace SoupMover.ViewModels
             SelectedSourceIndex = -1;
         }
 
-        public void AddToDirectories(DestinationPathViewModel DestPath)
-        {
-            _Directories.Add(DestPath);
-        }
+        
 
         #endregion
         public HomeViewModel(ModalNavSvc modal, DialogStore dialog, PreviewViewModel Preview)
@@ -265,12 +318,12 @@ namespace SoupMover.ViewModels
             this.Preview.SetHomeViewModel(this);
 
             //Commands
-            AddFileCommand = new AddFileCommand(_SourceFiles);
-            RemoveFileCommand = new RemoveFileCommand(_SourceFiles, this);
-            AddDirectoryCommand = new AddDirectoryCommand(_Directories);
-            RemoveDirectoryCommand = new RemoveDirectoryCommand(this, _Directories);
-            MoveToDestCommand = new MoveToDestCommand(this, _Directories, _SourceFiles);
-            MoveToSourceCommand = new MoveToSourceCommand(this, _Directories, _SourceFiles);
+            AddFileCommand = new AddFileCommand(this);
+            RemoveFileCommand = new RemoveFileCommand(this);
+            AddDirectoryCommand = new AddDirectoryCommand(this);
+            RemoveDirectoryCommand = new RemoveDirectoryCommand(this);
+            MoveToDestCommand = new MoveToDestCommand(this);
+            MoveToSourceCommand = new MoveToSourceCommand(this);
             MoveFilesCommand = new MoveFilesCommand(this, _Directories, modal, dialog);
             CancelCommand = new CancelCommand(this);
             SaveCommand = new SaveCommand(_SourceFiles, _Directories);

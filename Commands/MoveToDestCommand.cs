@@ -11,19 +11,17 @@ namespace SoupMover.Commands
     public class MoveToDestCommand : BaseCommand
     {
         private readonly HomeViewModel HVM;
-        private readonly ObservableCollection<DestinationPathViewModel> Directories;
-        private readonly ObservableCollection<string> SourceFiles;
         public override void Execute(object parameter)
         {
             if (parameter != null)
             {
                 System.Collections.IList items = (System.Collections.IList)parameter; var selection = items?.Cast<string>();
-                List<string> test = selection.ToList();
+                List<string> test = selection.ToList(); //Need to add selection to its own list because we remove items as we go along, breaking enumeration
                 HVM.SelectedSourceIndex = -1;
                 foreach (string file in test)
                 {
-                    SourceFiles.Remove(file);
-                    Directories[HVM.SelectedDirectoryIndex].AddFile(file);
+                    HVM.RemoveFromSourceFiles(file);
+                    HVM.AddToDestination(file);
                     HVM.TotalCount += 1;
                 }
                 HVM.RefreshDestinationListView();
@@ -35,11 +33,9 @@ namespace SoupMover.Commands
             return HVM.SelectedDirectoryIndex > -1 && HVM.SelectedSourceIndex > -1;
         }
 
-        public MoveToDestCommand(HomeViewModel HVM, ObservableCollection<DestinationPathViewModel> Directories, ObservableCollection<string> SourceFiles)
+        public MoveToDestCommand(HomeViewModel HVM)
         {
             this.HVM = HVM;
-            this.Directories = Directories;
-            this.SourceFiles = SourceFiles;
             this.HVM.PropertyChanged += HVM_PropertyChanged;
         }
 

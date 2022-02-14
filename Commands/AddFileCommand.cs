@@ -12,7 +12,7 @@ namespace SoupMover.Commands
 {
     public class AddFileCommand : BaseCommand
     {
-        private ObservableCollection<string> SourceFiles;
+        private readonly HomeViewModel HVM;
         public override void Execute(object parameter)
         {
             OpenFileDialog open = new OpenFileDialog();
@@ -20,16 +20,16 @@ namespace SoupMover.Commands
             if (open.ShowDialog() == true)
             {
                 foreach (string filename in open.FileNames)
-                { 
-                    if(!SourceFiles.Contains(filename))
-                        SourceFiles.Add(filename);
+                {
+                    if (!HVM.SourceFilesContains(filename))
+                        HVM.AddToSourceFiles(filename);
                 }
             }
         }
 
-        public AddFileCommand(ObservableCollection<string> SourceFiles)
+        public AddFileCommand(HomeViewModel HVM)
         {
-            this.SourceFiles = SourceFiles;
+            this.HVM = HVM;
         }
     }
 }

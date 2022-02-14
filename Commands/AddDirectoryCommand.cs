@@ -11,7 +11,7 @@ namespace SoupMover.Commands
 {
     public class AddDirectoryCommand : BaseCommand
     {
-        private readonly ObservableCollection<DestinationPathViewModel> Directories;
+        private readonly HomeViewModel HVM;
         public override void Execute(object parameter)
         {
             using var dialog = new System.Windows.Forms.FolderBrowserDialog();
@@ -19,17 +19,13 @@ namespace SoupMover.Commands
             if (result == System.Windows.Forms.DialogResult.OK && dialog.SelectedPath.Length > 0)
             {
                 DestinationPathViewModel DestPathVM = new DestinationPathViewModel(new DestinationPath(dialog.SelectedPath));
-                if (!Directories.Contains(DestPathVM))
-                { 
-                    Directories.Add(DestPathVM);
-                    
-                }
+                HVM.AddToDirectories(DestPathVM);
             }
         }
 
-        public AddDirectoryCommand(ObservableCollection<DestinationPathViewModel> Directories)
+        public AddDirectoryCommand(HomeViewModel HVM)
         {
-            this.Directories = Directories;
+            this.HVM = HVM;
         }
     }
 }

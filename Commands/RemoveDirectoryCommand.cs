@@ -13,21 +13,22 @@ namespace SoupMover.Commands
     public class RemoveDirectoryCommand : BaseCommand
     {
         private readonly HomeViewModel HVM;
-        private readonly ObservableCollection<DestinationPathViewModel> DestVMCollection;
         public override void Execute(object parameter)
         {
-            DestinationPath path = DestVMCollection[HVM.SelectedDirectoryIndex].GetDestinationPath();
-            if (path.GetFiles().Count > 0)
+            DestinationPathViewModel Path = HVM.GetDirectory(HVM.SelectedDirectoryIndex);
+            if (Path.GetFiles().Count > 0)
             {
                 var result = MessageBox.Show("There are files queued to this location. Do you still want to remove this directory? Selecting yes will return all files to the source files.", "Confirm",
                     MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.Yes)
                 {
-                    DestVMCollection.Remove(new DestinationPathViewModel(path));
+                    foreach (ModFile file in Path.GetFiles())
+                        HVM.AddToSourceFiles(file.FileName);
+                    HVM.RemoveFromDirectories(HVM.SelectedDirectoryIndex);
                 }
             }
             else
-                DestVMCollection.Remove(new DestinationPathViewModel(path));
+                HVM.RemoveFromDirectories(HVM.SelectedDirectoryIndex);
         }
 
         public override bool CanExecute(object parameter)
@@ -35,10 +36,10 @@ namespace SoupMover.Commands
             return HVM.SelectedDirectoryIndex > -1;
         }
 
-        public RemoveDirectoryCommand(HomeViewModel HVM, ObservableCollection<DestinationPathViewModel> DestVMCollection)
+        public RemoveDirectoryCommand(HomeViewModel HVM)
         {
             this.HVM = HVM;
-            this.DestVMCollection = DestVMCollection;
+            
             this.HVM.PropertyChanged += HVM_PropertyChanged;
         }
 
