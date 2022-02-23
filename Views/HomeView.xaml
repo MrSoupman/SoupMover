@@ -48,7 +48,8 @@
                     
                     <GroupBox Header="Source Files" Grid.Column="1">
                         <DockPanel>
-                            <TextBox DockPanel.Dock="Top"></TextBox>
+                            <TextBox x:Name="SourceSearch" DockPanel.Dock="Top" Text="{Binding Path=SourceSearch,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
+                                     GotFocus="SourceSearch_GotFocus" LostFocus="SourceSearch_LostFocus"></TextBox>
                             <ListView x:Name="SourceListView" ItemsSource="{Binding SourceFiles}" SelectedIndex="{Binding SelectedSourceIndex}">
                             </ListView>
                         </DockPanel>
@@ -61,7 +62,8 @@
 
                     <GroupBox Header="Destination" Grid.Column="4">
                         <DockPanel>
-                            <TextBox DockPanel.Dock="Top"></TextBox>
+                            <TextBox x:Name="DestinationSearch" DockPanel.Dock="Top" Text="{Binding Path=DestinationSearch,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                     GotFocus="DestinationSearch_GotFocus" LostFocus="DestinationSearch_LostFocus"></TextBox>
                             <ListView x:Name="DestinationListView" ItemsSource="{Binding DestinationFiles}" SelectedIndex="{Binding SelectedDestinationIndex}"/>
                         </DockPanel>
                     </GroupBox>
@@ -99,7 +101,8 @@
                 <!--Pane 3 is for the list of directories that files can be moved to-->
                 <GroupBox Header="Directories" Grid.Column="1">
                     <DockPanel>
-                        <TextBox DockPanel.Dock="Top"></TextBox>
+                        <TextBox x:Name="DirectorySearch" DockPanel.Dock="Top" Text="{Binding Path=DirectorySearch,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
+                                 GotFocus="DirectorySearch_GotFocus" LostFocus="DirectorySearch_LostFocus"></TextBox>
                         <TextBlock DockPanel.Dock="Top">Selected Directory:</TextBlock>
                         <TextBlock Text="{Binding SelectedDirectory}" DockPanel.Dock="Top" TextTrimming="CharacterEllipsis" Name="TextDirLbl"/>
                         <ListView SelectedIndex="{Binding SelectedDirectoryIndex}" ItemsSource="{Binding Directories}" DockPanel.Dock="Bottom">

@@ -1,11 +1,5 @@
 ﻿using SoupMover.Models;
 using SoupMover.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace SoupMover.Commands
@@ -39,7 +33,7 @@ namespace SoupMover.Commands
         public RemoveDirectoryCommand(HomeViewModel HVM)
         {
             this.HVM = HVM;
-            
+
             this.HVM.PropertyChanged += HVM_PropertyChanged;
         }
 

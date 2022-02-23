@@ -1,12 +1,7 @@
 ﻿using SoupMover.Models;
 using SoupMover.ViewModels;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SoupMover.Commands
@@ -27,7 +22,7 @@ namespace SoupMover.Commands
                 SaveData save = JsonSerializer.Deserialize<SaveData>(json);
                 foreach (string source in save.SourceFiles)
                     HVM.AddToSourceFiles(source);
-                foreach(DestinationPathViewModel dir in save.Directories)
+                foreach (DestinationPathViewModel dir in save.Directories)
                     HVM.AddToDirectories(dir);
             }
         }

@@ -1,10 +1,5 @@
 ﻿using LibVLCSharp.Shared;
 using SoupMover.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SoupMover.Commands.PreviewCommands
 {
@@ -20,7 +15,7 @@ namespace SoupMover.Commands.PreviewCommands
                 PVM.VolumeImage = @"../Images/volume-up.png";
             }
             else
-            { 
+            {
                 Media.Volume = 0;
                 PVM.VolumeImage = @"../Images/volume-off.png";
             }

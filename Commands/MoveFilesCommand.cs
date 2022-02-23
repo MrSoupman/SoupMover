@@ -2,17 +2,13 @@
 using SoupMover.Services;
 using SoupMover.Stores;
 using SoupMover.ViewModels;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
 
 namespace SoupMover.Commands
 {
@@ -25,7 +21,7 @@ namespace SoupMover.Commands
         private TaskCompletionSource<int> result;
         private BackgroundWorker Worker;
         private List<string> SkippedFiles;
-        private enum CompareResult {Yes, YesToAll, No, NoToAll, KeepBoth, Cancel }
+        private enum CompareResult { Yes, YesToAll, No, NoToAll, KeepBoth, Cancel }
 
         public override async void Execute(object parameter)
         {
@@ -118,7 +114,7 @@ namespace SoupMover.Commands
             Worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
             Worker.DoWork += Worker_DoWork;
             SkippedFiles = new List<string>();
-            
+
         }
 
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
@@ -145,7 +141,7 @@ namespace SoupMover.Commands
                     HVM.CurrentCount += 1;
                     (sender as BackgroundWorker).ReportProgress((int)((HVM.CurrentCount / (double)HVM.TotalCount) * 100));
                     Thread.Sleep(300);
-                    
+
                 }
                 path.Clear();
             }

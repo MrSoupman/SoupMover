@@ -2,12 +2,8 @@
 using SoupMover.Services;
 using SoupMover.Stores;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -36,7 +32,7 @@ namespace SoupMover.ViewModels
 
         #region Bindings
         private string _SourceFileName;
-        public string SourceFileName 
+        public string SourceFileName
         {
             get
             {
@@ -192,7 +188,7 @@ namespace SoupMover.ViewModels
             string DestinationFile = store.Message;
             if (File.Exists(SourceFile))
             {
-                
+
                 using (Icon ico = Icon.ExtractAssociatedIcon(SourceFile))
                 {
                     SourceFileIcon = Imaging.CreateBitmapSourceFromHIcon(ico.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
@@ -205,7 +201,7 @@ namespace SoupMover.ViewModels
             }
             if (File.Exists(DestinationFile))
             {
-                
+
                 using (Icon ico = Icon.ExtractAssociatedIcon(DestinationFile))
                 {
                     DestinationFileIcon = Imaging.CreateBitmapSourceFromHIcon(ico.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());

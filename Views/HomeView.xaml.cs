@@ -1,17 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SoupMover.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace SoupMover.Views
 {
@@ -23,6 +12,43 @@ namespace SoupMover.Views
         public HomeView()
         {
             InitializeComponent();
+
+        }
+
+        private void DirectorySearch_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (DirectorySearch.Text == "Search...")
+                DirectorySearch.Text = "";
+        }
+
+        private void DirectorySearch_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (DirectorySearch.Text == "")
+                DirectorySearch.Text = "Search...";
+        }
+
+        private void SourceSearch_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (SourceSearch.Text == "Search...")
+                SourceSearch.Text = "";
+        }
+
+        private void SourceSearch_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (SourceSearch.Text == "")
+                SourceSearch.Text = "Search...";
+        }
+
+        private void DestinationSearch_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (DestinationSearch.Text == "Search...")
+                DestinationSearch.Text = "";
+        }
+
+        private void DestinationSearch_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (DestinationSearch.Text == "")
+                DestinationSearch.Text = "Search...";
         }
     }
 }

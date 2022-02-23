@@ -2,16 +2,10 @@
 using MimeTypes;
 using SoupMover.Commands.PreviewCommands;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using WpfAnimatedGif;
 
 namespace SoupMover.ViewModels
 {
@@ -53,7 +47,7 @@ namespace SoupMover.ViewModels
         private BitmapImage _Gif;
         public BitmapImage Gif
         {
-            get 
+            get
             {
                 return _Gif;
             }
@@ -205,7 +199,7 @@ namespace SoupMover.ViewModels
         private string _TimeLabel;
         public string TimeLabel
         {
-            get 
+            get
             {
                 return _TimeLabel;
             }
@@ -248,7 +242,7 @@ namespace SoupMover.ViewModels
                 //TODO: Media has a built in timechanged event; maybe try to use that instead of DispatcherTimer?
                 Value = Media.Time / 1000;
             }
-            
+
         }
         private BitmapImage LoadBitmapImage(string fileName)
         {
@@ -274,7 +268,7 @@ namespace SoupMover.ViewModels
         }
 
         public void SetMediaTime()
-        { 
+        {
             Media.Time = (long)TimeSpan.FromSeconds(Value).TotalMilliseconds;
         }
 
@@ -282,7 +276,7 @@ namespace SoupMover.ViewModels
         {
             this.HVM = HVM;
             HVM.PropertyChanged += HVM_PropertyChanged;
-            
+
         }
 
         private void HVM_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -319,7 +313,7 @@ namespace SoupMover.ViewModels
                         Time.Start();
                         Media.Volume = 100;
                         Media.Play(media);
-                        
+
 
                     }
                     else if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("text"))

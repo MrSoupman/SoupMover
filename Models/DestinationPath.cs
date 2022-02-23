@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SoupMover.Models
 {
@@ -13,7 +10,7 @@ namespace SoupMover.Models
     {
         public string Path { get; init; }
         public List<ModFile> Files { get; init; }
-        
+
         public int CompareTo(object obj)
         {
             DestinationPath temp = obj as DestinationPath;

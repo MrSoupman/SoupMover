@@ -2,12 +2,9 @@
 using SoupMover.Models;
 using SoupMover.Services;
 using SoupMover.Stores;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace SoupMover.ViewModels
@@ -15,14 +12,17 @@ namespace SoupMover.ViewModels
     public class HomeViewModel : ViewModelBase
     {
         #region Viewmodel specific variables
-        private ObservableCollection<string> _SourceFiles { get; init; } //Stores the current files that have not been added to any destination
-        public IEnumerable<string> SourceFiles => _SourceFiles;
+        /// <summary>
+        /// _SourceFiles differs from SourceFiles as the latter is used to display filtered results; _SourceFiles has the full data
+        /// </summary>
+        private List<string> _SourceFiles { get; init; }
+        public ObservableCollection<string> SourceFiles { get; set; }
 
-        private ObservableCollection<DestinationPathViewModel> _Directories { get; init; } //Stores the current directories with files to be moved in
-        public IEnumerable<DestinationPathViewModel> Directories => _Directories;
+        private List<DestinationPathViewModel> _Directories { get; init; } //Stores the current directories with files to be moved in
+        public ObservableCollection<string> Directories { get; set; }
 
-        private ObservableCollection<ModFileViewModel> _DestinationFiles { get; set; }
-        public IEnumerable<ModFileViewModel> DestinationFiles => _DestinationFiles;
+        private List<ModFileViewModel> _DestinationFiles { get; set; }
+        public ObservableCollection<string> DestinationFiles { get; init; }
 
         #endregion
 
@@ -30,10 +30,7 @@ namespace SoupMover.ViewModels
         private int _SelectedSourceIndex;
         public int SelectedSourceIndex
         {
-            get
-            {
-                return _SelectedSourceIndex;
-            }
+            get => _SelectedSourceIndex;
             set
             {
                 _SelectedSourceIndex = value;
@@ -48,10 +45,7 @@ namespace SoupMover.ViewModels
         private int _SelectedDirectoryIndex;
         public int SelectedDirectoryIndex
         {
-            get
-            {
-                return _SelectedDirectoryIndex;
-            }
+            get => _SelectedDirectoryIndex;
             set
             {
                 _SelectedDirectoryIndex = value;
@@ -72,14 +66,11 @@ namespace SoupMover.ViewModels
         private int _SelectedDestinationIndex;
         public int SelectedDestinationIndex
         {
-            get
-            {
-                return _SelectedDestinationIndex;
-            }
+            get => _SelectedDestinationIndex;
             set
             {
                 _SelectedDestinationIndex = value;
-                if(value >= 0)
+                if (value >= 0)
                     SelectedFile = _DestinationFiles[value].ToString();
                 else
                     SelectedFile = "";
@@ -93,10 +84,7 @@ namespace SoupMover.ViewModels
         /// </summary>
         public string SelectedDirectory
         {
-            get
-            {
-                return _SelectedDirectory;
-            }
+            get => _SelectedDirectory;
             set
             {
                 _SelectedDirectory = value;
@@ -107,10 +95,7 @@ namespace SoupMover.ViewModels
         private int _TotalCount;
         public int TotalCount
         {
-            get
-            {
-                return _TotalCount;
-            }
+            get => _TotalCount;
             set
             {
                 _TotalCount = value;
@@ -121,10 +106,7 @@ namespace SoupMover.ViewModels
         private int _CurrentCount;
         public int CurrentCount
         {
-            get
-            {
-                return _CurrentCount;
-            }
+            get => _CurrentCount;
             set
             {
                 _CurrentCount = value;
@@ -134,10 +116,7 @@ namespace SoupMover.ViewModels
         private int _Progress;
         public int Progress
         {
-            get
-            {
-                return _Progress;
-            }
+            get => _Progress;
             set
             {
                 _Progress = value;
@@ -148,10 +127,7 @@ namespace SoupMover.ViewModels
         private PreviewViewModel _Preview;
         public PreviewViewModel Preview
         {
-            get
-            {
-                return _Preview;
-            }
+            get => _Preview;
             set
             {
                 _Preview = value;
@@ -162,10 +138,7 @@ namespace SoupMover.ViewModels
         private string _SelectedFile;
         public string SelectedFile
         {
-            get
-            {
-                return _SelectedFile;
-            }
+            get => _SelectedFile;
             set
             {
                 _SelectedFile = value;
@@ -176,10 +149,7 @@ namespace SoupMover.ViewModels
         private bool _IsMoving;
         public bool IsMoving
         {
-            get
-            {
-                return _IsMoving;
-            }
+            get => _IsMoving;
             set
             {
                 _IsMoving = value;
@@ -190,14 +160,83 @@ namespace SoupMover.ViewModels
         private bool _CancelMoving;
         public bool CancelMoving
         {
-            get
-            {
-                return _CancelMoving;
-            }
+            get => _CancelMoving;
             set
             {
                 _CancelMoving = value;
                 OnPropertyChanged(nameof(CancelMoving));
+            }
+        }
+
+        private string _SourceSearch;
+        public string SourceSearch
+        {
+            get => _SourceSearch;
+            set
+            {
+                _SourceSearch = value;
+                if (!value.Equals("Search...") && !value.Equals(""))
+                {
+                    var temp = _SourceFiles.Where(file => file.Contains(value, System.StringComparison.InvariantCultureIgnoreCase)).ToList();
+                    SourceFiles.Clear();
+
+                    foreach (string file in temp)
+                        SourceFiles.Add(file);
+                }
+                else
+                {
+                    SourceFiles.Clear();
+                    foreach (string file in _SourceFiles)
+                        SourceFiles.Add(file);
+                }
+            }
+        }
+
+        private string _DirectorySearch;
+        public string DirectorySearch
+        {
+            get => _DirectorySearch;
+            set
+            {
+                _DirectorySearch = value;
+                if (!value.Equals("Search...") && !value.Equals(""))
+                {
+                    var temp = _Directories.Where(file => file.Path.Contains(value, System.StringComparison.InvariantCultureIgnoreCase)).ToList();
+                    Directories.Clear();
+
+                    foreach (DestinationPathViewModel path in temp)
+                        Directories.Add(path.Path);
+                }
+                else
+                {
+                    Directories.Clear();
+                    foreach (DestinationPathViewModel path in _Directories)
+                        Directories.Add(path.Path);
+                }
+            }
+        }
+
+        private string _DestinationSearch;
+        public string DestinationSearch
+        {
+            get => _DestinationSearch;
+            set
+            {
+                _DestinationSearch = value;
+                if (!value.Equals("Search...") && !value.Equals(""))
+                {
+                    var temp = _DestinationFiles.Where(file => file.FileName.Contains(value, System.StringComparison.InvariantCultureIgnoreCase)).ToList();
+                    DestinationFiles.Clear();
+
+                    foreach (ModFileViewModel file in temp)
+                        DestinationFiles.Add(file.FileName);
+                }
+                else
+                {
+                    DestinationFiles.Clear();
+                    foreach (ModFileViewModel file in _DestinationFiles)
+                        DestinationFiles.Add(file.FileName);
+                }
             }
         }
 
@@ -224,6 +263,7 @@ namespace SoupMover.ViewModels
             foreach (ModFile file in files)
             {
                 _DestinationFiles.Add(new ModFileViewModel(file));
+                
             }
         }
 
@@ -231,14 +271,22 @@ namespace SoupMover.ViewModels
 
         public void AddToSourceFiles(string file)
         {
-            if(!_SourceFiles.Contains(file))
+            if (!_SourceFiles.Contains(file))
+            {
                 _SourceFiles.Add(file);
+                if (SourceSearch.Equals("") || SourceSearch.Equals("Search...") || file.ToLower().Contains(SourceSearch.ToLower()))
+                    SourceFiles.Add(file);
+            }
+                
         }
 
         public void RemoveFromSourceFiles(int index)
         {
             if (index > -1)
+            { 
                 _SourceFiles.RemoveAt(index);
+                SourceFiles.RemoveAt(index);
+            }
         }
 
         public void RemoveFromSourceFiles(string file)
@@ -251,25 +299,17 @@ namespace SoupMover.ViewModels
             if (!_Directories.Contains(DestPath))
             {
                 _Directories.Add(DestPath);
-                SortDirectories();
+                _Directories.Sort();
+                if (DirectorySearch.Equals("") || DirectorySearch.Equals("Search...") || DestPath.Path.ToLower().Contains(DirectorySearch.ToLower()))
+                    Directories.Add(DestPath.Path);
+
             }
-               
-        }
 
-        private void SortDirectories()
-        {
-
-            ObservableCollection<DestinationPathViewModel> temp;
-            var ordered = _Directories.OrderBy(p => p).AsEnumerable();
-            temp = new ObservableCollection<DestinationPathViewModel>(ordered);
-            _Directories.Clear();
-            foreach (DestinationPathViewModel j in temp) 
-                _Directories.Add(j);
         }
 
         public void RemoveFromDirectories(int index)
         {
-            if(index > -1)
+            if (index > -1)
                 _Directories.RemoveAt(index);
         }
 
@@ -281,12 +321,17 @@ namespace SoupMover.ViewModels
         public void AddToDestination(string file)
         {
             _Directories[SelectedDirectoryIndex].AddFile(file);
+            if (DestinationSearch.Equals("") || DestinationSearch.Equals("Search...") || file.ToLower().Contains(DestinationSearch.ToLower()))
+                DestinationFiles.Add(file);
         }
 
         public void RemoveFromDestination(string file)
         {
+            //int index = _Directories.IndexOf(Directories[SelectedDirectoryIndex])
             _Directories[SelectedDirectoryIndex].RemoveFile(file);
         }
+
+
 
         public void ClearDestinationListView()
         {
@@ -300,20 +345,24 @@ namespace SoupMover.ViewModels
             SelectedSourceIndex = -1;
         }
 
-        
-
         #endregion
         public HomeViewModel(ModalNavSvc modal, DialogStore dialog, PreviewViewModel Preview)
         {
-            _SourceFiles = new ObservableCollection<string>();
-            _Directories = new ObservableCollection<DestinationPathViewModel>();
-            _DestinationFiles = new ObservableCollection<ModFileViewModel>();
+            _SourceFiles = new List<string>();
+            SourceFiles = new ObservableCollection<string>();
+            _Directories = new List<DestinationPathViewModel>();
+            Directories = new ObservableCollection<string>();
+            _DestinationFiles = new List<ModFileViewModel>();
+            DestinationFiles = new ObservableCollection<string>();
             _SelectedSourceIndex = -1;
             _SelectedDestinationIndex = -1;
             _SelectedDirectoryIndex = -1;
             _SelectedDirectory = "(No directory selected)";
             _CurrentCount = 0;
             _TotalCount = 0;
+            _SourceSearch = "Search...";
+            _DirectorySearch = "Search...";
+            _DestinationSearch = "Search...";
             this.Preview = Preview;
             this.Preview.SetHomeViewModel(this);
 
@@ -324,9 +373,9 @@ namespace SoupMover.ViewModels
             RemoveDirectoryCommand = new RemoveDirectoryCommand(this);
             MoveToDestCommand = new MoveToDestCommand(this);
             MoveToSourceCommand = new MoveToSourceCommand(this);
-            MoveFilesCommand = new MoveFilesCommand(this, _Directories, modal, dialog);
+            //MoveFilesCommand = new MoveFilesCommand(this, _Directories, modal, dialog);
             CancelCommand = new CancelCommand(this);
-            SaveCommand = new SaveCommand(_SourceFiles, _Directories);
+            //SaveCommand = new SaveCommand(_SourceFiles, _Directories);
             LoadCommand = new LoadCommand(this);
         }
     }
