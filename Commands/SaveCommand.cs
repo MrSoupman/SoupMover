@@ -1,6 +1,7 @@
 ﻿
 using SoupMover.Models;
 using SoupMover.ViewModels;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
@@ -11,8 +12,8 @@ namespace SoupMover.Commands
 {
     public class SaveCommand : BaseCommand
     {
-        private ObservableCollection<string> SourceFiles;
-        private ObservableCollection<DestinationPathViewModel> Directories;
+        private List<string> SourceFiles;
+        private List<DestinationPathViewModel> Directories;
         public override void Execute(object parameter)
         {
             SaveFileDialog save = new SaveFileDialog()
@@ -40,7 +41,7 @@ namespace SoupMover.Commands
             }
         }
 
-        public SaveCommand(ObservableCollection<string> SourceFiles, ObservableCollection<DestinationPathViewModel> Directories)
+        public SaveCommand(List<string> SourceFiles, List<DestinationPathViewModel> Directories)
         {
             this.SourceFiles = SourceFiles;
             this.Directories = Directories;

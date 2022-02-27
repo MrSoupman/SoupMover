@@ -21,7 +21,7 @@
             </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="_About"/>
-                <MenuItem Header="_Reset"/>
+                <MenuItem Header="_Reset" Command="{Binding ResetCommand}"/>
             </MenuItem>
         </Menu>
         <Grid>

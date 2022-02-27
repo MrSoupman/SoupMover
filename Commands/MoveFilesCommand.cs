@@ -15,7 +15,7 @@ namespace SoupMover.Commands
     public class MoveFilesCommand : BaseCommand
     {
         private readonly HomeViewModel HVM;
-        private readonly ObservableCollection<DestinationPathViewModel> Directories;
+        private readonly List<DestinationPathViewModel> Directories;
         private readonly ModalNavSvc modal;
         private readonly DialogStore dialog;
         private TaskCompletionSource<int> result;
@@ -97,7 +97,7 @@ namespace SoupMover.Commands
             return HVM.TotalCount > 0;
         }
 
-        public MoveFilesCommand(HomeViewModel HVM, ObservableCollection<DestinationPathViewModel> Directories, ModalNavSvc modal, DialogStore dialog)
+        public MoveFilesCommand(HomeViewModel HVM, List<DestinationPathViewModel> Directories, ModalNavSvc modal, DialogStore dialog)
         {
             this.HVM = HVM;
             this.HVM.PropertyChanged += HVM_PropertyChanged;

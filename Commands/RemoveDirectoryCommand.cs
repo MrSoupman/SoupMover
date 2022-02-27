@@ -18,11 +18,11 @@ namespace SoupMover.Commands
                 {
                     foreach (ModFile file in Path.GetFiles())
                         HVM.AddToSourceFiles(file.FileName);
-                    HVM.RemoveFromDirectories(HVM.SelectedDirectoryIndex);
+                    HVM.RemoveFromDirectories(Path);
                 }
             }
             else
-                HVM.RemoveFromDirectories(HVM.SelectedDirectoryIndex);
+                HVM.RemoveFromDirectories(Path);
         }
 
         public override bool CanExecute(object parameter)

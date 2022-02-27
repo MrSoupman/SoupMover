@@ -1,5 +1,6 @@
 ﻿using SoupMover.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace SoupMover.Models
@@ -12,9 +13,9 @@ namespace SoupMover.Models
     /// </summary>
     public class SaveData
     {
-        public ObservableCollection<string> SourceFiles { get; set; }
-        public ObservableCollection<DestinationPathViewModel> Directories { get; set; }
-        public SaveData(ObservableCollection<string> SourceFiles, ObservableCollection<DestinationPathViewModel> Directories)
+        public List<string> SourceFiles { get; set; }
+        public List<DestinationPathViewModel> Directories { get; set; }
+        public SaveData(List<string> SourceFiles, List<DestinationPathViewModel> Directories)
         {
             this.SourceFiles = SourceFiles;
             this.Directories = Directories;

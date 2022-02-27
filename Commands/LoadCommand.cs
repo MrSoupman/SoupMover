@@ -18,12 +18,16 @@ namespace SoupMover.Commands
             };
             if (open.ShowDialog() == DialogResult.OK)
             {
+                HVM.Reset();
                 string json = File.ReadAllText(open.FileName);
                 SaveData save = JsonSerializer.Deserialize<SaveData>(json);
                 foreach (string source in save.SourceFiles)
                     HVM.AddToSourceFiles(source);
                 foreach (DestinationPathViewModel dir in save.Directories)
+                { 
                     HVM.AddToDirectories(dir);
+                    HVM.TotalCount += dir.GetFiles().Count;
+                }
             }
         }
 
