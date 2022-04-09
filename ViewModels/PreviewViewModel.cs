@@ -265,6 +265,7 @@ namespace SoupMover.ViewModels
             TextVisible = false;
             if (Media != null)
                 Media.Stop();
+            ErrorVisible = false;
         }
 
         public void SetMediaTime()
