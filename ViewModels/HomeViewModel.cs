@@ -322,6 +322,11 @@ namespace SoupMover.ViewModels
                 Directories.Remove(DestPath.Path);
         }
 
+        public int IndexOfDirectory(DestinationPathViewModel DestPathVM)
+        {
+            return _Directories.IndexOf(DestPathVM);
+        }
+
         public DestinationPathViewModel GetDirectory(int index)
         {
             DestinationPathViewModel DestVM = new DestinationPathViewModel(new DestinationPath(Directories[index]));

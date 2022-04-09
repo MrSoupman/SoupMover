@@ -14,6 +14,7 @@ namespace SoupMover.Commands
             {
                 DestinationPathViewModel DestPathVM = new DestinationPathViewModel(new DestinationPath(dialog.SelectedPath));
                 HVM.AddToDirectories(DestPathVM);
+                HVM.SelectedDirectoryIndex = HVM.IndexOfDirectory(DestPathVM);
             }
         }
 
