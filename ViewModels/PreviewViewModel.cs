@@ -6,6 +6,7 @@ using System.IO;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using System.Windows.Media;
 
 namespace SoupMover.ViewModels
 {
@@ -14,9 +15,9 @@ namespace SoupMover.ViewModels
         private HomeViewModel HVM;
         private readonly DispatcherTimer Time;
         private LibVLC Lib;
-        private MediaPlayer _Media;
+        private LibVLCSharp.Shared.MediaPlayer _Media;
         public bool IsDragging { get; set; }
-        public MediaPlayer Media
+        public LibVLCSharp.Shared.MediaPlayer Media
         {
             get
             {
@@ -44,8 +45,8 @@ namespace SoupMover.ViewModels
             }
         }
 
-        private BitmapImage _Gif;
-        public BitmapImage Gif
+        private ImageSource _Gif;
+        public ImageSource Gif
         {
             get
             {
@@ -58,8 +59,8 @@ namespace SoupMover.ViewModels
             }
         }
 
-        private BitmapImage _Image;
-        public BitmapImage Image
+        private ImageSource _Image;
+        public ImageSource Image
         {
             get
             {
@@ -227,7 +228,7 @@ namespace SoupMover.ViewModels
 
             Core.Initialize();
             Lib = new LibVLC();
-            Media = new MediaPlayer(Lib);
+            Media = new LibVLCSharp.Shared.MediaPlayer(Lib);
             PlayCommand = new PlayCommand(Media);
             PauseCommand = new PauseCommand(Media);
             VolumeCommand = new VolumeCommand(this, Media);
@@ -244,23 +245,23 @@ namespace SoupMover.ViewModels
             }
 
         }
-        private BitmapImage LoadBitmapImage(string fileName)
-        {
-            var stream = new FileStream(fileName, FileMode.Open);
-            
+        private ImageSource LoadBitmapImage(string fileName)
+        {            
             var bitmapImage = new BitmapImage();
             bitmapImage.BeginInit();
             bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-            bitmapImage.StreamSource = stream;
+            bitmapImage.UriSource = new Uri(fileName);
             bitmapImage.EndInit();
-            bitmapImage.Freeze(); // just in case you want to load the image in another thread
+            bitmapImage.Freeze();
             return bitmapImage;
             
         }
         private void HidePreviews()
         {
             ImageVisible = false;
+            Image = null;
             GifVisible = false;
+            Gif = null;
             PlayerVisible = false;
             TextVisible = false;
             if (Media != null)
@@ -294,9 +295,8 @@ namespace SoupMover.ViewModels
                     {
                         if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("gif"))
                         {
-                            GifVisible = true;
-                            var test = LoadBitmapImage(HVM.SelectedFile);
-                            Gif = test;
+                            GifVisible = true;                         
+                            Gif = LoadBitmapImage(HVM.SelectedFile);
                         }
                         else
                         {
