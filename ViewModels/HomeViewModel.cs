@@ -303,7 +303,21 @@ namespace SoupMover.ViewModels
                 _Directories.Add(DestPath);
                 _Directories.Sort();
                 if (DirectorySearch.Equals("") || DirectorySearch.Equals("Search...") || DestPath.Path.ToLower().Contains(DirectorySearch.ToLower()))
-                    Directories.Insert(_Directories.IndexOf(DestPath), DestPath.Path);
+                {
+                    bool ins = false; //if we inserted or not
+                    for (int i = 0; i < Directories.Count; i++) //this snippet inserts the directory at right position taking into consideration search filter
+                    {
+                        if (string.Compare(DestPath.Path, Directories[i]) < 1)
+                        {
+                            Directories.Insert(i, DestPath.Path);
+                            ins = true;
+                            break;
+                        }
+                    }
+                    if(!ins)
+                        Directories.Add(DestPath.Path);
+                }
+                    
 
             }
 
@@ -324,7 +338,7 @@ namespace SoupMover.ViewModels
 
         public int IndexOfDirectory(DestinationPathViewModel DestPathVM)
         {
-            return _Directories.IndexOf(DestPathVM);
+            return Directories.IndexOf(DestPathVM.ToString());
         }
 
         public DestinationPathViewModel GetDirectory(int index)
@@ -344,6 +358,11 @@ namespace SoupMover.ViewModels
             _Directories[ConvertDirectoryIndex()].RemoveFile(file);
         }
 
+        /// <summary>
+        /// Converts the currently selected directory index to 
+        /// the index of the search-filtered directories list
+        /// </summary>
+        /// <returns>Corrected index</returns>
         private int ConvertDirectoryIndex()
         {
             DestinationPathViewModel DestVM = new DestinationPathViewModel(new DestinationPath(Directories[SelectedDirectoryIndex]));
