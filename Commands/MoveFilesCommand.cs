@@ -39,6 +39,8 @@ namespace SoupMover.Commands
                     List<ModFile> files = path.GetFiles();
                     foreach (ModFile file in files)
                     {
+                        if (!File.Exists(file.FileName)) //need to check if file exists in first place
+                            continue;
                         string Destination = path.Path;
                         if (File.Exists(Destination + Path.DirectorySeparatorChar + Path.GetFileName(file.FileName))) //File exists in destination it should be moved to
                         {
