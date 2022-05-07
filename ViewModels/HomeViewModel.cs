@@ -246,6 +246,7 @@ namespace SoupMover.ViewModels
         public ICommand AddFileCommand { get; }
         public ICommand RemoveFileCommand { get; }
         public ICommand AddDirectoryCommand { get; }
+        public ICommand RecursiveAddDirCommand { get; }
         public ICommand RemoveDirectoryCommand { get; }
         public ICommand MoveToDestCommand { get; }
         public ICommand MoveToSourceCommand { get; }
@@ -433,6 +434,7 @@ namespace SoupMover.ViewModels
             SaveCommand = new SaveCommand(_SourceFiles, _Directories);
             LoadCommand = new LoadCommand(this);
             ResetCommand = new ResetCommand(this);
+            RecursiveAddDirCommand = new RecursiveAddDirCommand(this);
         }
     }
 }
