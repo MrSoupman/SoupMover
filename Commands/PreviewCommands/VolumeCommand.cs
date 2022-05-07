@@ -5,7 +5,7 @@ namespace SoupMover.Commands.PreviewCommands
 {
     public class VolumeCommand : BaseCommand
     {
-        private readonly MediaPlayer Media;
+        private MediaPlayer Media;
         private readonly PreviewViewModel PVM;
         public override void Execute(object parameter)
         {
@@ -21,10 +21,18 @@ namespace SoupMover.Commands.PreviewCommands
             }
         }
 
-        public VolumeCommand(PreviewViewModel PVM, MediaPlayer Media)
+        public VolumeCommand(PreviewViewModel PVM)
         {
-            this.Media = Media;
+            
             this.PVM = PVM;
+            Media = this.PVM.GetMedia();
+            this.PVM.PropertyChanged += PVM_PropertyChanged;
+        }
+
+        private void PVM_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Media))
+                Media = PVM.GetMedia();
         }
     }
 }

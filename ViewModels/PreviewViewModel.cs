@@ -68,6 +68,7 @@ namespace SoupMover.ViewModels
             }
             set
             {
+
                 _Image = value;
                 OnPropertyChanged(nameof(Image));
             }
@@ -229,9 +230,9 @@ namespace SoupMover.ViewModels
             Core.Initialize();
             Lib = new LibVLC();
             Media = new LibVLCSharp.Shared.MediaPlayer(Lib);
-            PlayCommand = new PlayCommand(Media);
-            PauseCommand = new PauseCommand(Media);
-            VolumeCommand = new VolumeCommand(this, Media);
+            PlayCommand = new PlayCommand(this);
+            PauseCommand = new PauseCommand(this);
+            VolumeCommand = new VolumeCommand(this);
         }
 
         private void Time_Tick(object sender, EventArgs e)
@@ -291,11 +292,12 @@ namespace SoupMover.ViewModels
                 {
                     HidePreviews();
                     Uri uri = new Uri(HVM.SelectedFile);
+                    Media = new LibVLCSharp.Shared.MediaPlayer(Lib); //creates a new instance so GC gets rid of old video
                     if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("image"))
                     {
                         if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("gif"))
                         {
-                            GifVisible = true;                         
+                            GifVisible = true;
                             Gif = LoadBitmapImage(HVM.SelectedFile);
                         }
                         else
@@ -307,6 +309,7 @@ namespace SoupMover.ViewModels
                     }
                     else if (MimeTypeMap.GetMimeType(uri.ToString()).Contains("video") || MimeTypeMap.GetMimeType(uri.ToString()).Contains("audio"))
                     {
+                        
                         PlayerVisible = true;
                         var media = new Media(Lib, uri);
                         Maximum = media.Duration / 1000;
@@ -336,6 +339,16 @@ namespace SoupMover.ViewModels
                     }
                 }
             }
+            else if (e.PropertyName == nameof(HomeViewModel.IsMoving))
+            {
+                if (HVM.IsMoving)
+                    HidePreviews();
+            }
+        }
+
+        public LibVLCSharp.Shared.MediaPlayer GetMedia()
+        {
+            return Media;
         }
     }
 }
