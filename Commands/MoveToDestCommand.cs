@@ -7,6 +7,7 @@ namespace SoupMover.Commands
     public class MoveToDestCommand : BaseCommand
     {
         private readonly HomeViewModel HVM;
+        private short count = 0; //every time this hits 10, we autosave
         public override void Execute(object parameter)
         {
             if (parameter != null)
@@ -19,8 +20,14 @@ namespace SoupMover.Commands
                     HVM.RemoveFromSourceFiles(file);
                     HVM.AddToDestination(file);
                     HVM.TotalCount += 1;
+                    count++;
                 }
                 HVM.RefreshDestinationListView();
+                if (count >= 10)
+                {
+                    HVM.SaveCommand.Execute("autosave");
+                    count = 0;
+                }
             }
         }
 

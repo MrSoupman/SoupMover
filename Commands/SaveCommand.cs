@@ -17,6 +17,11 @@ namespace SoupMover.Commands
         private string SaveLocation { get; set; } = string.Empty;
         public override void Execute(object parameter)
         {
+            if (parameter != null) //when we call this using the menu, this is null
+            {
+                SaveData(Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "autosave.json");
+                return;
+            }
             SaveFileDialog save = new SaveFileDialog()
             {
                 Filter = "JSON files(*.json) | *.json",
@@ -26,20 +31,24 @@ namespace SoupMover.Commands
             };
             if (save.ShowDialog() == DialogResult.OK)
             {
-                SaveLocation = Path.GetDirectoryName(save.FileName);
-                using (var stream = File.Create(save.FileName))
+                SaveData(save.FileName);                
+            }
+        }
+
+        private void SaveData(string path)
+        {
+            using (var stream = File.Create(path))
+            {
+                if (stream != null)
                 {
-                    if (stream != null)
+                    var options = new JsonSerializerOptions()
                     {
-                        var options = new JsonSerializerOptions()
-                        {
-                            WriteIndented = true
-                        };
-                        var Save = new SaveData(SourceFiles, Directories);
-                        string json = JsonSerializer.Serialize<SaveData>(Save, options);
-                        stream.Write(Encoding.UTF8.GetBytes(json), 0, json.Length);
-                        stream.Close();
-                    }
+                        WriteIndented = true
+                    };
+                    var Save = new SaveData(SourceFiles, Directories);
+                    string json = JsonSerializer.Serialize<SaveData>(Save, options);
+                    stream.Write(Encoding.UTF8.GetBytes(json), 0, json.Length);
+                    stream.Close();
                 }
             }
         }
