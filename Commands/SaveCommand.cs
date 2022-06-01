@@ -14,16 +14,19 @@ namespace SoupMover.Commands
     {
         private List<string> SourceFiles;
         private List<DestinationPathViewModel> Directories;
+        private string SaveLocation { get; set; } = string.Empty;
         public override void Execute(object parameter)
         {
             SaveFileDialog save = new SaveFileDialog()
             {
                 Filter = "JSON files(*.json) | *.json",
                 RestoreDirectory = true,
-                OverwritePrompt = true
+                OverwritePrompt = true,
+                InitialDirectory = SaveLocation ?? ""
             };
             if (save.ShowDialog() == DialogResult.OK)
             {
+                SaveLocation = Path.GetDirectoryName(save.FileName);
                 using (var stream = File.Create(save.FileName))
                 {
                     if (stream != null)
